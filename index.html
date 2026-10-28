@@ -5072,7 +5072,7 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
  setInterval(()=>{if(online()&&!document.hidden)push(true)},60000);
  setInterval(()=>{if(sc==='rank'&&online()&&!RK.busy)load()},20000);
  const worth=r=>(r.coins|0)+(r.gems|0)*PKR2;
- function doc(){const w=wc(),d={n:(S.name||ACC),ln:ACC.toLowerCase(),coins:S.coins|0,gems:S.gems|0,lv:S.lv|0,wk:w.k,wc:w.c|0,ts:Date.now(),seen:Date.now()};try{if(window.roomSnap){d.rm=roomSnap();d.hv=window.hvSnap?hvSnap():null}}catch(e){}return d}
+ function doc(){const w=wc(),d={n:(S.name||ACC),ln:ACC.toLowerCase(),coins:S.coins|0,gems:S.gems|0,lv:S.lv|0,wk:w.k,wc:w.c|0,ts:Date.now(),seen:Date.now()};if(S.noRank)d.hid=1;try{if(window.roomSnap){d.rm=roomSnap();d.hv=window.hvSnap?hvSnap():null}}catch(e){}return d}
  async function push(force){if(!online()||RK.busy)return;const d=doc(),sig=[d.coins,d.gems,d.lv,d.wk,d.wc,d.n,JSON.stringify(d.rm||0),JSON.stringify(d.hv||0)].join(',');if(!force&&sig===RK.last)return;RK.busy=1;
   try{await RK.db.doc('lb/'+RK.uid).set(d);RK.last=sig;RK.ok=true}catch(e){RK.ok=false}RK.busy=0}
  setInterval(()=>{if(RK.dirty||sc==='rank'){RK.dirty=0;push()}},60000);
@@ -5104,7 +5104,7 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   RK.syncName=sync}}
  function hue(n){let h=0;for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%360;return h}
  const av=n=>'<span class="av" style="background:hsl('+hue(n)+',65%,58%)">'+esc((n||'?').charAt(0).toUpperCase())+'</span>';
- function board(){let r=RK.rows.slice();const k=wkKey();
+ function board(){let r=RK.rows.filter(x=>!x.hid);const k=wkKey();
   if(RK.tab===0)r=r.filter(x=>x.wk===k&&(x.wc|0)>0).sort((a,b)=>b.wc-a.wc);else r=r.sort((a,b)=>worth(b)-worth(a));
   if(RK.only){const f=new Set(friends().concat([RK.uid]));r=r.filter(x=>f.has(x.id))}return r}
  const val=x=>RK.tab===0?'🧸 '+(x.wc|0)+' ตัว':'🪙 '+worth(x).toLocaleString();
@@ -7798,6 +7798,23 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
    if(!RK.mine.length&&!RK._mineLoaded){const m=await RK.db.doc('fr/'+RK.uid).get();RK.mine=m.exists?(m.data().ids||[]):[];RK._mineLoaded=1}
    const b=$('rkBtn');if(b){const n=RK.reqs().length;b.textContent='🏆 อันดับ / เพื่อน'+(n?' ('+n+' คำขอ)':'')}
    onFrReq()}catch(e){}},40000);
+})();
+
+// ===== admin gifts: account doc field `gift` {id,coins,gems,noRank,msg} applied once =====
+(function(){
+ if(typeof ACC==='undefined'||!ACC)return;
+ const st=document.createElement('style');st.textContent='#gfN{position:fixed;inset:0;z-index:2950;display:none;align-items:center;justify-content:center;background:rgba(20,8,45,.7)}#gfN .b{width:calc(100% - 40px);max-width:340px;background:linear-gradient(#fffbe8,#ffe6f3);border:4px solid #fff;border-radius:24px;box-shadow:0 8px 0 #e0a020,0 14px 30px #0008;padding:16px;text-align:center;color:#5b3a52;font-size:15px;line-height:1.5}#gfN .i{font-size:54px;animation:gfb .6s ease-in-out infinite alternate}@keyframes gfb{to{transform:translateY(-6px) scale(1.06)}}#gfN b{color:#e0457b;font-size:22px}#gfN button{margin-top:10px;width:100%;font-size:16px;padding:10px}';
+ document.head.appendChild(st);
+ const ov=document.createElement('div');ov.id='gfN';document.body.appendChild(ov);
+ let busy=0;
+ async function check(){if(busy||typeof LDB==='undefined'||!LDB)return;busy=1;
+  try{const sn=await cdoc(ACC).get();const g=sn.exists&&sn.data().gift;
+   if(g&&g.id&&!g.done){if(!Array.isArray(S.giftDone))S.giftDone=[];
+    if(!S.giftDone.includes(g.id)){S.giftDone.push(g.id);const c=+g.coins||0,m=+g.gems||0;S.coins=(S.coins||0)+c;S.gems=(S.gems||0)+m;if(g.noRank)S.noRank=1;
+     try{await cdoc(ACC).update({gift:Object.assign({},g,{done:Date.now()})})}catch(e){}try{save()}catch(e){}try{hud()}catch(e){}try{window.cloudPush&&cloudPush()}catch(e){}
+     ov.innerHTML='<div class="b"><div class="i">🎁</div>'+(g.msg?String(g.msg).replace(/[<>&]/g,''):'ได้รับของขวัญพิเศษ!')+'<br>'+(c?'<b>+'+c.toLocaleString()+' 🪙</b><br>':'')+(m?'<b>+'+m.toLocaleString()+' 💎</b><br>':'')+'<button class="pk" id="gfOk">เย้! รับเลย</button></div>';
+     ov.style.display='flex';$('gfOk').onclick=()=>{ov.style.display='none'};try{SFX.ok()}catch(e){}}}}catch(e){}busy=0}
+ setTimeout(check,8000);setInterval(()=>{if(!document.hidden&&!window.__syncReload)check()},60000);
 })();
 
 // ---- starter doll cabinet + furniture locks ----
