@@ -4471,7 +4471,7 @@ function myClawInit(){MY.claw={x:3.4,z:-3.4,sx:0,sz:0,vsx:0,vsz:0,hy:MY_TOP,th:.
 function myDrop(){
  const C=MY.claw;if(!MY.on||C.st!=='idle'||MY.cel)return;
  if(S.coins<MY_COST){myMsg('🪙 ไม่พอ (ต้องใช้ '+MY_COST+')',90);try{SFX.bad()}catch(e){}return}
- S.coins-=MY_COST;save();hud();C.st='down';MY.grip=(Math.random()<.35?.95:.3+Math.random()*.4)*[0,.6,.75,.9,1,1.12][clv()];MY.grip=Math.min(.99,MY.grip);try{SFX.pop()}catch(e){}myMsg(clv()<4?'ตุ๊กตา 5 ดาวหนักมาก ขาคีบ Lv.'+clv()+' อาจบีบไม่แน่น (อัพเกรดได้ที่ตู้คีบหลัก)':'กำลังหย่อนก้าม…',90)}
+ S.coins-=MY_COST;save();hud();C.st='down';MY.grip=(Math.random()<.35?.95:.3+Math.random()*.4)*[0,.6,.75,.9,1,1.12,1.15,1.18,1.2,1.22,1.25][clv()];MY.grip=Math.min(.99,MY.grip);try{SFX.pop()}catch(e){}myMsg(clv()<4?'ตุ๊กตา 5 ดาวหนักมาก ขาคีบ Lv.'+clv()+' อาจบีบไม่แน่น (อัพเกรดได้ที่ตู้คีบหลัก)':'กำลังหย่อนก้าม…',90)}
 function myClaw(){
  const C=MY.claw,K=MY.keys;
  // pendulum sway from carriage accel
@@ -4665,10 +4665,15 @@ const CLP=[null,
  {n:'เขียวมรกต',d:'#14602c',m:'#3cc868',l:'#c8ffd8',g:'#7af0a0',ic:'🟢'},
  {n:'ฟ้าไพลิน',d:'#1a4a9a',m:'#4a9ef0',l:'#d0eaff',g:'#7ac4ff',ic:'🔵'},
  {n:'ม่วงอเมทิสต์',d:'#4a208a',m:'#a066f0',l:'#ecdcff',g:'#c8a0ff',ic:'🟣'},
- {n:'ทองคำวิเศษ',d:'#a36d00',m:'#ffc21a',l:'#fff6b0',g:'#ffe066',ic:'🟡'}];
-const CUP=[null,null,{c:500,g:0},{c:1500,g:0},{c:4000,g:10},{c:10000,g:25}];
-const CLCAP=['',' ★1–★2',' ★3',' ★4',' ★5',' ★5 + โซนเขียวกว้างสุด'];
-function clv(){return Math.max(1,Math.min(5,S.cl|0||1))}
+ {n:'ทองคำวิเศษ',d:'#a36d00',m:'#ffc21a',l:'#fff6b0',g:'#ffe066',ic:'🟡'},
+ {n:'ชมพูโรสควอตซ์',d:'#9a2a5a',m:'#ff8ab8',l:'#ffe4f0',g:'#ffb0d0',ic:'🌸'},
+ {n:'แดงทับทิม',d:'#7a0a1a',m:'#ff3a4a',l:'#ffd0d4',g:'#ff7a88',ic:'🔴'},
+ {n:'ส้มเพลิงสุริยะ',d:'#8a3a00',m:'#ff8a1a',l:'#ffe8c0',g:'#ffb060',ic:'🟠'},
+ {n:'เพชรขาวประกาย',d:'#5a6a8a',m:'#e8f4ff',l:'#ffffff',g:'#cfeaff',ic:'💎'},
+ {n:'สายรุ้งจักรวาล',d:'#3a1a7a',m:'#b58af0',l:'#fff0ff',g:'#7affd8',ic:'🌈'}];
+const CUP=[null,null,{c:500,g:0},{c:1500,g:0},{c:4000,g:10},{c:10000,g:25},{c:25000,g:50},{c:53000,g:100},{c:112000,g:200},{c:236000,g:400},{c:500000,g:800}];
+const CLCAP=['',' ★1–★2',' ★3',' ★4',' ★5',' ★5 + โซนเขียวกว้างสุด',' ★5 + โซนกว้างกว่าเดิม',' ★6 + โซนกว้างกว่าเดิม',' ★7 + โซนกว้างกว่าเดิม',' ★8 + โซนกว้างกว่าเดิม',' ทุกดาว + โซนกว้างสุดยอด'];
+function clv(){return Math.max(1,Math.min(10,S.cl|0||1))}
 function clNeed(q){return Math.max(1,(q.st||Math.ceil((q.d+1)/2))-1)}
 function clPal(){return CLP[clv()]}
 // ---- warnings ----
@@ -4773,12 +4778,12 @@ function cuFinish(){
  save();hud();cuSay('🎉 ขาคีบเป็น Lv.'+lv+' '+pal.n+'! ยกได้ถึง'+CLCAP[lv]+(rb?' · เพอร์เฟกต์! คืนเหรียญ 🪙'+rb:''));
  $('cubtn').textContent='✅ เสร็จแล้ว';cuInfo();$('cugo').style.display='none'}
 function cuInfo(){const cur=clv(),nx=cur+1;
- $('cusel').innerHTML=[1,2,3,4,5].map(i=>'<div class="cul'+(i===cur?' on':'')+'" style="color:'+CLP[i].m+';opacity:'+(i<=cur?1:.55)+'"><b>'+CLP[i].ic+'</b>Lv.'+i+'</div>').join('');
+ $('cusel').innerHTML=[1,2,3,4,5,6,7,8,9,10].map(i=>'<div class="cul'+(i===cur?' on':'')+'" style="color:'+CLP[i].m+';opacity:'+(i<=cur?1:.55)+'"><b>'+CLP[i].ic+'</b>Lv.'+i+'</div>').join('');
  const p=CLP[cur];
- $('cuinfo').innerHTML='ขาคีบตอนนี้: <b style="color:'+p.m+'">Lv.'+cur+' '+p.n+'</b> · ยกได้ถึง<b>'+CLCAP[cur]+'</b>'+(nx<=5?'<br>อัพเป็น <b style="color:'+CLP[nx].m+'">Lv.'+nx+' '+CLP[nx].n+'</b> ต้องใช้ 🪙'+CUP[nx].c+(CUP[nx].g?' + 💎'+CUP[nx].g:'')+' · ยกได้ถึง'+CLCAP[nx]:'<br>⭐ ขาคีบแข็งแรงสุดแล้ว!');
- const can=nx<=5&&S.coins>=CUP[nx].c&&(S.gems||0)>=CUP[nx].g;$('cugo').style.display=nx<=5?'':'none';$('cugo').disabled=!can;$('cugo').textContent=nx<=5?(can?'🔧 เริ่มประกอบ Lv.'+nx:'🪙/💎 ยังไม่พอ'):''}
+ $('cuinfo').innerHTML='ขาคีบตอนนี้: <b style="color:'+p.m+'">Lv.'+cur+' '+p.n+'</b> · ยกได้ถึง<b>'+CLCAP[cur]+'</b>'+(nx<=10?'<br>อัพเป็น <b style="color:'+CLP[nx].m+'">Lv.'+nx+' '+CLP[nx].n+'</b> ต้องใช้ 🪙'+CUP[nx].c+(CUP[nx].g?' + 💎'+CUP[nx].g:'')+' · ยกได้ถึง'+CLCAP[nx]:'<br>⭐ ขาคีบแข็งแรงสุดแล้ว!');
+ const can=nx<=10&&S.coins>=CUP[nx].c&&(S.gems||0)>=CUP[nx].g;$('cugo').style.display=nx<=10?'':'none';$('cugo').disabled=!can;$('cugo').textContent=nx<=10?(can?'🔧 เริ่มประกอบ Lv.'+nx:'🪙/💎 ยังไม่พอ'):''}
 function cluOpen(){CU.on=true;CU.running=false;CU.done=false;CU.step=0;CU.lvl=clv();CU.fx=[];CU.chargedDone=false;CU.pr=[true,true,true];CU.sp={y:1.62,done:true};CU.perfect=0;go('clu');cuSay('กด "ประกอบอัตโนมัติ" เพื่ออัพเกรดขาคีบเลเวลถัดไป');$('cubtn').textContent='⬅️ กลับ';cuInfo();if(!CU.raf)CU.raf=requestAnimationFrame(cuLoop)}
-function cuStart(){const nx=clv()+1;if(nx>5)return;const c=CUP[nx];if(S.coins<c.c||(S.gems||0)<c.g)return;
+function cuStart(){const nx=clv()+1;if(nx>10)return;const c=CUP[nx];if(S.coins<c.c||(S.gems||0)<c.g)return;
  CU.lvl=nx;CU.running=true;CU.done=false;CU.step=0;CU.perfect=0;CU.chargedDone=false;CU.pr=[false,false,false];CU.sp={y:4,done:false};CU.g=0;CU.hold=false;CU.fx=[];$('cugo').style.display='none';$('cubtn').textContent='ยกเลิก';cuSay('ขั้นที่ 1: แตะตอนที่สปริงลอยมาตรงวงประ แล้วมันจะประกอบเข้าหัวก้าม');
  CU.mode=1}
 (function(){
@@ -4798,7 +4803,7 @@ function cuStart(){const nx=clv()+1;if(nx>5)return;const c=CUP[nx];if(S.coins<c.
  const b=document.createElement('button');b.className='pk big';b.id='cuauto';b.style.cssText='background:linear-gradient(#7fe8b0,#1fb86a);box-shadow:0 5px 0 #0c6a3a;margin-top:6px;width:100%';b.textContent='⚡ ประกอบอัตโนมัติ (กดทีเดียว)';
  go0.parentNode.parentNode.insertBefore((()=>{const r=document.createElement('div');r.className='row';r.appendChild(b);return r})(),go0.parentNode.nextSibling);
  const W=640,H=520;
- function auto(){const nx=clv()+1;if(nx>5||CU.running)return;const c=CUP[nx];if(S.coins<c.c||(S.gems||0)<c.g)return;
+ function auto(){const nx=clv()+1;if(nx>10||CU.running)return;const c=CUP[nx];if(S.coins<c.c||(S.gems||0)<c.g)return;
   cuStart();if(!CU.running)return;CU.auto=true;CU.perfect=0;b.style.display='none';$('cubtn').disabled=true;const pal=CLP[nx];
   const T=(f,ms)=>setTimeout(()=>{if(CU.auto&&CU.running)f()},ms);
   T(()=>{CU.sp.done=true;CU.sp.y=1.62;cuBurst(W/2,H*.5,pal.g,26);try{SFX.ok()}catch(e){}cuSay('① ใส่แกนสปริงอัตโนมัติ...');CU.flash=.25},500);
@@ -6318,7 +6323,7 @@ setInterval(()=>{
  const pg=document.getElementById('sc-skill');if(!pg)return;
  const sty=document.createElement('style');sty.textContent='#cugo,#cuTap{display:none!important}#skclaw{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:12px 14px;border-radius:20px;border:3px solid #fff;background:linear-gradient(135deg,#7a4dff,#c94bd8);box-shadow:0 4px 0 rgba(30,10,80,.5);color:#fff;cursor:pointer}#skclaw canvas{width:84px;height:93px;flex:none;border-radius:16px;background:radial-gradient(circle at 50% 40%,#4a3a9a,#1c1442);border:2px solid rgba(255,255,255,.5)}#skclaw .tx{flex:1;text-align:left}#skclaw b{font-size:16px;display:block}#skclaw small{font-size:12px;opacity:.9}#skclaw .go{background:#ffd23f;color:#3a2a00;font-weight:900;border-radius:14px;padding:8px 12px;font-size:13px}';document.head.appendChild(sty);
  const d=document.createElement('div');d.id='skclaw';d.innerHTML='<canvas id="skclawcv" width="180" height="200"></canvas><span class="tx"><b></b><small></small></span><span class="go">อัพเกรด ›</span>';pg.insertBefore(d,pg.firstChild);
- const upd=()=>{if(sc!=='skill')return;const lv=clv(),p=clPal();d.querySelector('b').textContent='🔧 ขาคีบ Lv.'+lv+' '+p.ic+' '+p.n;d.querySelector('small').textContent=lv>=5?'สูงสุดแล้ว · ยกตุ๊กตายากได้ทุกตัว':'อัพเกรดให้ยกตุ๊กตายาก (หลายดาว) ได้มั่นคงขึ้น'};
+ const upd=()=>{if(sc!=='skill')return;const lv=clv(),p=clPal();d.querySelector('b').textContent='🔧 ขาคีบ Lv.'+lv+' '+p.ic+' '+p.n;d.querySelector('small').textContent=lv>=10?'สูงสุดแล้ว · ยกตุ๊กตายากได้ทุกตัว':'อัพเกรดให้ยกตุ๊กตายาก (หลายดาว) ได้มั่นคงขึ้น'};
  setInterval(upd,400);
  let az=.5;const cvc=document.getElementById('skclawcv'),gg=cvc.getContext('2d');
  const fr=()=>{requestAnimationFrame(fr);if(sc!=='skill')return;az+=.018;const W=cvc.width,H=cvc.height;gg.clearRect(0,0,W,H);const C=m3cam(az,.28,15,430,W/2,H*.58,[0,1.1,0]);try{cuModel(gg,C,clPal(),{rope:true,spring:true,pr:[true,true,true],showSlots:false,nextSlot:-1,charged:true,spY:1.62,fly:null})}catch(e){}};fr();
