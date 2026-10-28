@@ -1369,7 +1369,7 @@ const STR=q=>q.st||Math.ceil((q.d+1)/2);
 const starsOf=t=>STR(T[t]);
 const slotVal=x=>{if(x==null||!slOk(x))return 0;const t=slType(x),o=x<0?svGet(x):null;return lmult(Math.max(1,lvOf(t)))*RV(T[t].d)*(o?stM(o.s):1)};
 const happyPets=()=>S.pets.filter(p=>p.hap>=50).length;
-function liveRate(){let v=0;for(let i=0;i<slotCount();i++)v+=slotVal(S.live.slots[i]);return v*LK*(.6+S.live.hype/100*.9)*(1+.1*happyPets())*fameMult(S.fans)}
+function liveRate(){let v=0;for(let i=0;i<slotCount();i++)v+=slotVal(S.live.slots[i]);return v*LK*(.6+S.live.hype/100*.9)*(1+.005*happyPets())*fameMult(S.fans)}
 const income=liveRate;
 // ---------- audio ----------
 let AC=null;
@@ -2492,7 +2492,7 @@ window.LVF={lv:0,cnt(){const c=Array(11).fill(0);T.forEach((q,i)=>{if(S.own[i]>0
  bar(id,after){let b=document.getElementById(id);if(!b){b=document.createElement('div');b.id=id;b.className='lvf';const g=document.getElementById(after);g.parentNode.insertBefore(b,g)}setHTML(id,LVF.html())}};
 {const st=document.createElement('style');st.textContent='.lvf{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 8px}.lvc{padding:5px 9px;border-radius:12px;background:#3a2d66;color:#fff;font:800 12px Sarabun,sans-serif;border:2px solid #ffffff33;cursor:pointer;white-space:nowrap}.lvc i{font-style:normal;background:#ffffff26;border-radius:8px;padding:0 5px;margin-left:2px;font-size:11px}.lvc.on{background:linear-gradient(#ffd86b,#e09a20);color:#4a2a00;border-color:#fff}.lvc.on i{background:#4a2a0022}.lvc.z{opacity:.45}.ic .cnt{position:absolute;right:3px;top:3px;min-width:30px;text-align:center;padding:1px 6px;border-radius:12px;background:linear-gradient(#ff7fbf,#e0457b);color:#fff;font:900 15px Sarabun,sans-serif;border:2px solid #fff;box-shadow:0 2px 0 #0004;z-index:2;line-height:1.25}.ic .rdy{right:auto!important;left:-4px!important}';document.head.appendChild(st)}
 try{LVF.bar('lvf1','mgrid')}catch(e){}
-document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('[data-lvf]');if(!c)return;LVF.lv=+c.dataset.lvf;try{SFX.pop()}catch(_){}renderMerge();try{window.__FL&&window.renderFlNow&&renderFlNow()}catch(_){}});
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('[data-lvf]');if(!c)return;LVF.lv=+c.dataset.lvf;try{SFX.pop()}catch(_){}renderMerge();try{window.__FL&&window.renderFlNow&&renderFlNow()}catch(_){}try{if(sc==='pack'&&typeof pkUI==='function')pkUI()}catch(_){}});
 function renderMerge(){
  mgPick();const t=MG.sel,own=hv(t);
  let h='';
@@ -2584,15 +2584,15 @@ const pkCnt=t=>PKG.sel.filter(x=>x===t).length;
 const pkCdLeft=()=>Math.max(0,PKG.cd-Date.now());
 function pkUI(){
  const idle=PKG.state==='idle';
- $('pkui').style.display=idle?'block':'none';$('pkgrid').style.display=idle?'grid':'none';$('pkh2').style.display=idle?'block':'none';
+ $('pkui').style.display=idle?'block':'none';$('pkgrid').style.display=idle?'grid':'none';{const lf=$('lvf3');if(lf)lf.style.display=idle?'flex':'none'}$('pkh2').style.display=idle?'block':'none';
  $('pkGo').style.display=idle?'block':'none';$('pkCancel').style.display=idle?'none':'block';
  if(!idle)return;
  let h='<div class="small" style="margin-bottom:6px">📦 กล่องของฉัน (แตะเพื่อเอาออก)</div><div class="row">';
  let tot=0;for(let i=0;i<PKMAX;i++){if(i===5)h+='</div><div class="row" style="margin-top:4px">';const x0=PKG.sel[i];if(x0!=null){const t=slType(x0);tot+=pkVal(x0);h+='<div class="ic on" data-ps="'+i+'" style="flex:1;min-height:64px">'+(x0<0?svTag(x0):'')+'<img src="'+IMG[t]+'"><span class="nm" style="min-height:14px">'+T[t].n+'</span></div>'}else h+='<div class="ic dim" style="flex:1;min-height:64px"><div style="font-size:26px;height:52px;line-height:52px">➕</div><span class="pr">ช่อง '+(i+1)+'</span></div>'}
  const cg=PKG.cur==='gem';h+='</div><div class="row" style="margin-top:8px"><button class="pk" data-pc="gem" style="flex:1;font-size:13px;opacity:'+(cg?1:.55)+';'+(cg?'outline:3px solid #ffd23f;':'')+'background:linear-gradient(#7fd8ff,#3a84e8)">รับเป็น 💎 เพชร</button><button class="pk" data-pc="coin" style="flex:1;font-size:13px;opacity:'+(cg?.55:1)+';'+(cg?'':'outline:3px solid #ffd23f;')+'background:linear-gradient(#ffd86b,#e09a20)">รับเป็น 🪙 เหรียญ</button></div><div style="margin-top:8px;text-align:center">มูลค่าฐาน <b style="color:#9ff0d0">'+(cg?'💎 '+tot:'🪙 '+tot*PKR)+'</b> <span class="small">(+โบนัสสูงสุด 35% · 💎1 = 🪙'+PKR+')</span></div>'+(PKG.sel.some(t=>pkCnt(t)>=S.own[t])?'<div class="small" style="text-align:center;color:#ffb0b0;margin-top:4px">⚠️ มีตัวสุดท้ายของแบบนั้นในกล่อง ขายแล้วจะหายจากสมุดสะสม</div>':'');
  setHTML('pkui',h);
- const hv=T.map((q,i)=>pkSpare(i)>0?'<div class="ic'+(pkCnt(i)?' on':'')+'" data-pg="'+i+'" style="border-color:'+(pkCnt(i)?'#ffd23f':q.c)+'">'+(pkCnt(i)?'<b class="rdy">✅×'+pkCnt(i)+'</b>':'')+'<img src="'+IMG[i]+'"><span class="nm">'+q.n+'</span><span class="pr">มี '+(pkSpare(i)-pkCnt(i))+' · '+(PKG.cur==='gem'?'💎'+SELL[q.d]:'🪙'+SELL[q.d]*PKR)+'</span></div>':'').join('')+(S.sv||[]).map(o=>{const x=-o.id,q=T[o.t],on=pkCnt(x);return '<div class="ic'+(on?' on':'')+'" data-pg="'+x+'" style="border-color:'+(on?'#ffd23f':ST[o.s].c)+'">'+(on?'<b class="rdy">✅</b>':'')+svTag(x)+'<img src="'+IMG[o.t]+'"><span class="nm">'+q.n+'</span><span class="pr">'+ST[o.s].n+' · '+(PKG.cur==='gem'?'💎'+Math.round(pkVal(x)):'🪙'+Math.round(pkVal(x)*PKR))+'</span></div>'}).join('');
- setHTML('pkgrid',hv||'<div class="small" style="grid-column:1/-1;text-align:center">ยังไม่มีตุ๊กตา ไปคีบที่ตู้คีบก่อนนะ 🎮</div>');
+ LVF.bar('lvf3','pkgrid');const hv=T.map((q,i)=>pkSpare(i)>0&&LVF.ok(i)?'<div class="ic'+(pkCnt(i)?' on':'')+'" data-pg="'+i+'" style="border-color:'+(pkCnt(i)?'#ffd23f':q.c)+'">'+(pkSpare(i)>1?'<b class="cnt">×'+pkSpare(i)+'</b>':'')+(pkCnt(i)?'<b class="rdy">✅×'+pkCnt(i)+'</b>':'')+'<img src="'+IMG[i]+'"><span class="nm">'+q.n+'</span><span class="pr">มี '+(pkSpare(i)-pkCnt(i))+' · '+(PKG.cur==='gem'?'💎'+SELL[q.d]:'🪙'+SELL[q.d]*PKR)+'</span></div>':'').join('')+(S.sv||[]).filter(o=>LVF.ok(o.t)).map(o=>{const x=-o.id,q=T[o.t],on=pkCnt(x);return '<div class="ic'+(on?' on':'')+'" data-pg="'+x+'" style="border-color:'+(on?'#ffd23f':ST[o.s].c)+'">'+(on?'<b class="rdy">✅</b>':'')+svTag(x)+'<img src="'+IMG[o.t]+'"><span class="nm">'+q.n+'</span><span class="pr">'+ST[o.s].n+' · '+(PKG.cur==='gem'?'💎'+Math.round(pkVal(x)):'🪙'+Math.round(pkVal(x)*PKR))+'</span></div>'}).join('');
+ setHTML('pkgrid',hv||'<div class="small" style="grid-column:1/-1;text-align:center">'+(LVF.lv?'ไม่มีตุ๊กตาเลเวล '+LVF.lv+' ให้แพ็ค (ลองเลือกเลเวลอื่น)':'ยังไม่มีตุ๊กตา ไปคีบที่ตู้คีบก่อนนะ 🎮')+'</div>');
  pkBtn();
 }
 function pkBtn(){const l=pkCdLeft(),b=$('pkGo'),t=l>0?'⏳ รออีก '+Math.ceil(l/1000)+' วิ':'📦 เริ่มแพ็ค';if(b.textContent!==t)b.textContent=t;b.disabled=l>0||!PKG.sel.length}
@@ -5210,7 +5210,7 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
 // ===== loading screen =====
 (function(){
  const L=document.getElementById('ldr');if(!L)return;
- const tips=['💡 ตุ๊กตาตัวหายากคีบยากกว่านะ ลองใช้ไอเทมช่วยดู','🌙 งานวัดไร่ขิงเปิดตอนกลางคืนเท่านั้น','🐶 สัตว์เลี้ยงที่สุขใจ ช่วยให้ไลฟ์สดฮิตขึ้น','🔀 ตุ๊กตาซ้ำเอาไปผสมให้เลเวลสูงขึ้นได้','👻 บ้านผีมีตุ๊กตาที่ไม่มีที่ไหนอีก','🫨 เขย่าตู้ ลองดูว่าจะได้อะไร!'];
+ const tips=['💡 ตุ๊กตาตัวหายากคีบยากกว่านะ ลองใช้ไอเทมช่วยดู','🌙 งานวัดไร่ขิงเปิดตอนกลางคืนเท่านั้น','🐶 สัตว์เลี้ยงที่สุขใจ ช่วยเพิ่มรายได้ไลฟ์ตัวละ 0.5%','🔀 ตุ๊กตาซ้ำเอาไปผสมให้เลเวลสูงขึ้นได้','👻 บ้านผีมีตุ๊กตาที่ไม่มีที่ไหนอีก','🫨 เขย่าตู้ ลองดูว่าจะได้อะไร!'];
  let ti=Math.random()*tips.length|0,p=6,t0=Date.now(),done=false;
  const bar=document.getElementById('ldrb'),pc=document.getElementById('ldrp'),tp=document.getElementById('ldrt');
  tp.textContent=tips[ti];
@@ -5478,7 +5478,7 @@ function renderCare(){
  if(!S.pets.length){$('pcare').innerHTML='<div class="small" style="text-align:center;padding:8px">ยังไม่มีสัตว์เลี้ยง ซื้อน้องหมา/น้องแมวจากร้านด้านบนได้เลย! น้องที่สุขใจช่วยหาเหรียญให้ด้วยนะ</div>';return}
  selPet=Math.min(selPet,S.pets.length-1);const p=S.pets[selPet];
  $('pcare').innerHTML='<div class="chips" style="margin:0 0 8px">'+S.pets.map((q,i)=>'<button data-sp="'+i+'" class="'+(i===selPet?'on':'')+'">'+pName(q)+'</button>').join('')+'</div>'+'<div class="row" style="margin:0 0 8px"><button class="pk big sell" data-act="feed" style="font-size:13px">🍖 ให้อาหาร 10🪙</button><button class="pk big blue" data-act="play" style="font-size:13px">🎾 เล่นบอล</button><button class="pk big" data-act="pat" style="font-size:13px">❤️ ลูบหัว</button></div>'+'<div style="display:flex;gap:6px;margin:0 0 8px;width:100%;box-sizing:border-box"><input id="pnm" maxlength="12" value="'+(p.nm||'').replace(/"/g,'')+'" placeholder="ตั้งชื่อน้อง ('+PETD.find(d=>d.v===p.v).n+')" style="flex:1;min-width:0;padding:8px 12px;border-radius:14px;border:2px solid #6b4bb0;background:#1f1650;color:#fff;font:inherit;font-size:14px"><button class="pk" data-act="name" style="font-size:13px;padding:8px 10px;flex:none;width:auto;height:auto">💾</button><button class="pk" data-act="rname" style="font-size:13px;padding:8px 10px;flex:none;width:auto;height:auto">🎲</button></div>'+bars(p)+
-  '<div class="small" style="margin:4px 0 8px">'+(p.hap>=50?'✅ น้องสุขใจ ช่วยให้ไลฟ์สดฮิตขึ้น +10% 📺':'⚠️ น้องยังไม่สุขใจ เล่นด้วยหน่อยนะ')+'</div>';
+  '<div class="small" style="margin:4px 0 8px">'+(p.hap>=50?'✅ น้องสุขใจ เพิ่มรายได้ไลฟ์ +0.5% 📺':'⚠️ น้องยังไม่สุขใจ เล่นด้วยหน่อยนะ')+'</div>';
 }
 $('pshop').addEventListener('click',e=>{const c=e.target.closest('.ic');if(!c)return;const v=c.dataset.pv,d=PETD.find(x=>x.v===v);
  if(S.pets.some(p=>p.v===v)){toast('pmsg','มี'+d.n+'อยู่แล้ว');return}
@@ -5655,13 +5655,13 @@ if(!S.gender)$('gsel').style.display='flex';
 
 // ===== player skills (3D skill pillars) + doll carry limit =====
 (function(){
- const LVP=l=>l<=0?0:Math.round(5+(l-1)*35/9);
+ const LVP=l=>l<=0?0:Math.round(1+(l-1)*14/9),LVX=l=>l<=0?0:Math.round(2+(l-1)*13/9);
  const SK=[
   {id:'bag',e:'🎒',n:'กระเป๋าตุ๊กตา',max:36,c:'rgb(120,200,255)',base:120,gr:1.22,d:l=>'ถือได้ '+(20+5*l)+' ตัว',u:'+5 ตัวต่อเลเวล (สูงสุด 200)'},
-  {id:'live',e:'📺',n:'พ่อค้าไลฟ์สด',max:10,c:'rgb(255,120,170)',base:240,gr:1.45,d:l=>'รายได้ไลฟ์ +'+LVP(l)+'%',u:'เลเวล 1 = +5% ถึงเลเวล 10 = +40%'},
+  {id:'live',e:'📺',n:'พ่อค้าไลฟ์สด',max:10,c:'rgb(255,120,170)',base:240,gr:1.45,d:l=>'รายได้ไลฟ์ +'+LVP(l)+'%',u:'เลเวล 1 = +1% ถึงเลเวล 10 = +15%'},
   {id:'slow',e:'🐢',n:'หลอดเขียวชะลอ',max:10,c:'rgb(110,220,140)',base:180,gr:1.4,d:l=>'แถบวิ่งช้าลง '+l*4+'%',u:'-4% ต่อเลเวล'},
   {id:'zone',e:'🎯',n:'โซนเขียวกว้างขึ้น',max:10,c:'rgb(120,235,95)',base:220,gr:1.4,d:l=>'โซนเขียว +'+(l*1.5)+'%',u:'+1.5% ต่อเลเวล'},
-  {id:'xp',e:'⭐',n:'ตาไวเก็บเวล',max:10,c:'rgb(255,215,80)',base:160,gr:1.4,d:l=>'ได้ XP +'+l*6+'%',u:'+6% ต่อเลเวล'},
+  {id:'xp',e:'⭐',n:'ตาไวเก็บเวล',max:10,c:'rgb(255,215,80)',base:160,gr:1.4,d:l=>'ได้ XP +'+LVX(l)+'%',u:'เลเวล 1 = +2% ถึงเลเวล 10 = +15%'},
   {id:'retry',e:'🍀',n:'โชคดีลองใหม่',max:5,c:'rgb(190,140,255)',base:400,gr:1.6,d:l=>'พลาดแล้วได้ลองใหม่ฟรี '+l*6+'%',u:'+6% ต่อเลเวล'}];
  window.SKD=SK;
  const lvl=id=>((S.sk||{})[id])|0;
@@ -5679,7 +5679,7 @@ if(!S.gender)$('gsel').style.display='flex';
    if(st==='mini'&&mini&&lvl('retry')&&!(mini.p>=mini.z&&mini.p<=mini.z+mini.w)&&Math.random()<.06*lvl('retry')){SFX.ok();newZone();say('🍀 โชคดี! ได้ลองใหม่ฟรี');return}
    return _st.apply(this,arguments)}}
  {const _c=collect;collect=function(p){const r=_c.apply(this,arguments);
-   const b=Math.round((T[p.t].d+1)*10*SH[S.shop].xpm*.06*lvl('xp'));if(b>0){S.xp+=b;while(S.xp>=XPN()){S.xp-=XPN();S.lv++;S.coins+=10}save();hud()}
+   const b=Math.round((T[p.t].d+1)*10*SH[S.shop].xpm*LVX(lvl('xp'))/100);if(b>0){S.xp+=b;while(S.xp>=XPN()){S.xp-=XPN();S.lv++;S.coins+=10}save();hud()}
    if(total()>=cap())setTimeout(()=>{try{bagFull()}catch(e){}},1100);
    return r}}
  {const _d=drop;drop=function(){ens();if(st==='idle'&&total()>=cap()){SFX.bad();bagFull();return}return _d.apply(this,arguments)}}
@@ -6719,7 +6719,8 @@ window.lobbyMochi=(function(){
  {const _s=save;save=function(){if(window.__syncReload)return;return _s.apply(this,arguments)}}
  async function pushNow(){if(!LDB||!ready||busy||window.__syncReload)return;busy=1;const ts=+S.ts||0;
   try{await cdoc(ACC).update({save:JSON.stringify(S),ts});setMk(ts);setCloudTxt('☁️ ซิงก์แล้ว')}catch(e){setCloudTxt('⚠️ ซิงก์ไม่สำเร็จ จะลองใหม่')}busy=0}
- window.cloudPush=function(){if(!ready||!LDB)return;clearTimeout(pt);pt=setTimeout(pushNow,5000)};
+ window.cloudPush=function(){if(!ready||!LDB||pt)return;pt=setTimeout(()=>{pt=0;pushNow()},5000)};
+ window.cloudFlush=function(){if(!ready||!LDB)return;clearTimeout(pt);pt=0;if((+S.ts||0)>getMk())pushNow()};
  function setCloudTxt(t){try{const el=$('lgcloud');if(el)el.textContent=t}catch(e){}}
  // true = ใช้เซฟเครื่องนี้ต่อได้ / false = กำลังโหลดเซฟใหม่ (reload) หรืออ่านคลาวด์ไม่ได้
  async function pull(){
@@ -6739,7 +6740,7 @@ window.lobbyMochi=(function(){
  init();
  document.addEventListener('visibilitychange',async()=>{
   if(!LDB)return;
-  if(document.hidden){if(ready){clearTimeout(pt);if((+S.ts||0)>getMk())pushNow()}}
+  if(document.hidden){if(ready){clearTimeout(pt);pt=0;if((+S.ts||0)>getMk())pushNow()}}
   else if(ready){ready=false;const r=await pull();if(r===true){ready=true;if((+S.ts||0)>getMk())pushNow()}else if(r===null)ready=true}});
  setInterval(async()=>{if(!ready||document.hidden||busy||(sc!=='lobby'&&sc!=='map'))return;const sv=ready;ready=false;const r=await pull();if(r===false)return;ready=sv},120000);
 })();
@@ -6962,7 +6963,7 @@ window.lobbyMochi=(function(){
   if(b)b.style.display='block'};
  document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#pkBest');if(!b||PKG.state!=='idle')return;
   const L=[];T.forEach((q,i)=>{for(let k=0;k<pkSpare(i);k++)L.push(i)});(S.sv||[]).forEach(s=>L.push(-s.id));
-  L.sort((a,b)=>pkVal(a)-pkVal(b));PKG.sel=L.slice(0,10);SFX.pop();pkUI()});
+  const L2=L.filter(x=>LVF.ok(slType(x)));L.length=0;L2.forEach(x=>L.push(x));L.sort((a,b)=>pkVal(a)-pkVal(b));PKG.sel=L.slice(0,10);SFX.pop();pkUI()});
 })();
 
 // UI 3 มิติ + ตัวหนังสืออ่านชัด (เลเยอร์ CSS ทับ)
@@ -7902,6 +7903,14 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
   if(D.all){for(let i=0;i<T.length;i++)S.own[i]=(S.own[i]|0)+qty;ok('🧸 เสกตุ๊กตาทุกแบบ แบบละ '+qty+' ตัว');return}
   if(D.sp!=null){const i=+D.sp;S.own[i]=(S.own[i]|0)+qty;try{(S.recent=S.recent||[]).unshift(i);S.recent.length=Math.min(S.recent.length,30)}catch(_){}ok('🧸 เสก '+T[i].n+' +'+qty+' (มี '+S.own[i]+')');return}
   if(D.dn){if(D.dn==='a'){OFF=0;try{dnTick()}catch(_){}ok('🔄 กลับเป็นเวลาจริงแล้ว')}else{setPhase(D.dn==='n');ok(D.dn==='n'?'🌙 เปลี่ยนเป็นกลางคืนแล้ว':'☀️ เปลี่ยนเป็นกลางวันแล้ว')}return}});
+})();
+
+// ===== save safety: flush on refresh/close/background + faster autosave =====
+(function(){
+ const flush=()=>{try{if(window.__syncReload||window.__accBad||typeof S==='undefined'||!S||!S.own)return;save();if(window.cloudFlush)cloudFlush()}catch(e){}};
+ addEventListener('pagehide',flush);addEventListener('beforeunload',flush);
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)flush()});
+ setInterval(()=>{if(!document.hidden&&!window.__syncReload&&!window.__accBad){try{save()}catch(e){}}},3000);
 })();
 
 // ---- starter doll cabinet + furniture locks ----
