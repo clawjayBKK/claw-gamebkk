@@ -5111,12 +5111,20 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   const sync=()=>{const i=$('rknm');if(i&&document.activeElement!==i)i.value=S.name||ACC||'';r.style.display=ACC?'flex':'none'};
   RK.syncName=sync}}
  function hue(n){let h=0;for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%360;return h}
- const av=n=>'<span class="av" style="background:hsl('+hue(n)+',65%,58%)">'+esc((n||'?').charAt(0).toUpperCase())+'</span>';
+ // ---- player character icon (cached) ----
+ const CI={};
+ function charCv(x){const R=x&&x.rm;if(!R||!window.withLook||!R.g)return null;const key=x.id+'|'+R.g+JSON.stringify(R.lk||0)+JSON.stringify(R.we||0);if(CI[key])return CI[key];
+  const c=document.createElement('canvas');c.width=c.height=96;const q=c.getContext('2d');
+  try{withLook(R.g,R.lk&&R.lk[R.g]?R.lk:null,R.we,()=>{drawChar(q,R.g,0,0,48,150,138,false,1,0)})}catch(e){return null}
+  return CI[key]=c}
+ const av=(n,x)=>{const c=charCv(x),bg='background:hsl('+hue(n||'?')+',65%,'+(c?'80':'58')+'%)';
+  if(c){const k=c.__u||(c.__u=c.toDataURL());return '<span class="av" style="'+bg+';overflow:hidden;padding:0"><img src="'+k+'" style="width:100%;height:100%;object-fit:cover;display:block"></span>'}
+  return '<span class="av" style="'+bg+'">'+esc((n||'?').charAt(0).toUpperCase())+'</span>'};
  function board(){let r=RK.rows.filter(x=>!x.hid);const k=wkKey();
   if(RK.tab===0)r=r.filter(x=>x.wk===k&&(x.wc|0)>0).sort((a,b)=>b.wc-a.wc);else r=r.sort((a,b)=>worth(b)-worth(a));
   if(RK.only){const f=new Set(friends().concat([RK.uid]));r=r.filter(x=>f.has(x.id))}return r}
  const val=x=>RK.tab===0?'🧸 '+(x.wc|0)+' ตัว':'🪙 '+worth(x).toLocaleString();
- function row(x,i){return '<div class="rkr'+(x.id===RK.uid?' me':'')+'"><span class="no">'+(i<3?['1','2','3'][i]:i+1)+'</span>'+av(x.n)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl">'+val(x)+'</span></div>'}
+ function row(x,i){return '<div class="rkr'+(x.id===RK.uid?' me':'')+'"><span class="no">'+(i<3?['1','2','3'][i]:i+1)+'</span>'+av(x.n,x)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl">'+val(x)+'</span></div>'}
  function status(){const l=wkLeft(),d=Math.floor(l/864e5),h=Math.floor(l%864e5/36e5);
   let s='';if(!ACC)s='ต้องเข้าสู่ระบบด้วยบัญชีก่อนถึงจะติดอันดับได้ (ออกจากโหมดผู้เยี่ยมชม)';else if(!RK.db||!RK.uid)s='ออฟไลน์: เปิดเกมผ่านลิงก์บน claude.ai เพื่อใช้ระบบออนไลน์';else if(RK.ok===false)s='👀 โหมดดูอย่างเดียว: ตอนนี้บัญชีนี้ส่งคะแนนไม่ได้ (ต้องได้สิทธิ์ผู้ร่วมแก้ไขจากเจ้าของลิงก์)';else s='🟢 ออนไลน์ · ';
   const on=RK.rows.filter(x=>x.id!==RK.uid&&isOn(x)).length+(online()?1:0),fo=friends().filter(i=>{const x=byId(i);return x&&isOn(x)}).length;
@@ -5131,10 +5139,10 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   let h='';if(!ACC){bd.innerHTML='<div class="bx">เข้าสู่ระบบก่อนเพื่อเพิ่มเพื่อนได้นะ</div>';return}
   h+='<div class="bx">🆔 รหัสเพื่อนของฉัน: <b style="color:#ffe27a;font-size:15px">'+esc(ACC)+'</b><br><small>ให้เพื่อนพิมพ์ชื่อนี้เพื่อเพิ่มคุณ</small></div>';
   h+='<input id="rkin" maxlength="16" placeholder="พิมพ์ชื่อเพื่อน (ชื่อผู้ใช้ในเกม)"><button class="pk big" id="rkadd" style="width:100%;margin-top:2px">➕ เพิ่มเพื่อน</button><div id="rkmsg" style="font-size:12px;margin:6px 0;min-height:16px">'+esc(RK.msg||'')+'</div>';
-  const rq=reqs();if(rq.length){h+='<div class="sec">📩 คำขอเป็นเพื่อน</div>'+rq.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+esc(x.n)+'</span><button class="pk" data-ac="'+i+'">ยอมรับ</button></div>'}).join('')}
+  const rq=reqs();if(rq.length){h+='<div class="sec">📩 คำขอเป็นเพื่อน</div>'+rq.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0};return '<div class="rkr">'+av(x.n,x)+'<span class="nm">'+esc(x.n)+'</span><button class="pk" data-ac="'+i+'">ยอมรับ</button></div>'}).join('')}
   const fr=friends();h+='<div class="sec">👥 เพื่อนของฉัน ('+fr.length+')</div>';
-  h+=fr.length?fr.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0,coins:0,gems:0,wc:0,wk:0};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl" style="font-size:11px">🧸 '+(x.wk===wkKey()?(x.wc|0):0)+' · 🪙 '+worth(x).toLocaleString()+'</span><button class="pk" data-visit="'+i+'" style="background:#ff8fc6">🏠</button><button class="pk" data-rm="'+i+'" style="background:#8a80b8">✕</button></div>'}).join(''):'<div class="bx" style="text-align:center">ยังไม่มีเพื่อน เพิ่มจากรหัสด้านบนได้เลย</div>';
-  const sn=sent();if(sn.length)h+='<div class="sec">⏳ รอเพื่อนตอบรับ</div>'+sn.map(i=>{const x=byId(i)||{n:'ผู้เล่น'};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+esc(x.n)+'</span><button class="pk" data-rm="'+i+'" style="background:#8a80b8">ยกเลิก</button></div>'}).join('');
+  h+=fr.length?fr.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0,coins:0,gems:0,wc:0,wk:0};return '<div class="rkr">'+av(x.n,x)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl" style="font-size:11px">🧸 '+(x.wk===wkKey()?(x.wc|0):0)+' · 🪙 '+worth(x).toLocaleString()+'</span><button class="pk" data-visit="'+i+'" style="background:#ff8fc6">🏠</button><button class="pk" data-rm="'+i+'" style="background:#8a80b8">✕</button></div>'}).join(''):'<div class="bx" style="text-align:center">ยังไม่มีเพื่อน เพิ่มจากรหัสด้านบนได้เลย</div>';
+  const sn=sent();if(sn.length)h+='<div class="sec">⏳ รอเพื่อนตอบรับ</div>'+sn.map(i=>{const x=byId(i)||{n:'ผู้เล่น'};return '<div class="rkr">'+av(x.n,x)+'<span class="nm">'+esc(x.n)+'</span><button class="pk" data-rm="'+i+'" style="background:#8a80b8">ยกเลิก</button></div>'}).join('');
   bd.innerHTML=h}
  // events
  document.addEventListener('click',async e=>{
@@ -5170,9 +5178,9 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   sorted.forEach(({s})=>{const r=list[s.r];const P=box(C,s.x,0,4.6,4.4,s.h,s.c);
    const top=m3proj(C,s.x,s.h,0),bl=m3proj(C,s.x,s.h+2.5+Math.sin(tm*2+s.r)*.25,0);
    const front=m3proj(C,s.x,s.h*.5,2.2);g.fillStyle='rgba(60,30,10,.75)';g.font='800 '+(30*front.s/16)+'px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(s.r+1,front.x,front.y);
-   if(r){const col=hex(hue(r.n)),R=2*bl.s;const sp=m3spr(col);g.drawImage(sp,bl.x-R,bl.y-R,R*2,R*2);g.fillStyle='#fff';g.font='800 '+(R*1.1)+'px sans-serif';g.fillText((r.n||'?').charAt(0).toUpperCase(),bl.x,bl.y+1);
-    if(s.r===0){const c=m3proj(C,s.x,s.h+4.9+Math.sin(tm*2)*.25,0),k=c.s;g.fillStyle='#ffd23f';g.strokeStyle='#8a5a10';g.lineWidth=2;g.beginPath();g.moveTo(c.x-18*k/16,c.y+9*k/16);g.lineTo(c.x-20*k/16,c.y-9*k/16);g.lineTo(c.x-9*k/16,c.y);g.lineTo(c.x,c.y-14*k/16);g.lineTo(c.x+9*k/16,c.y);g.lineTo(c.x+20*k/16,c.y-9*k/16);g.lineTo(c.x+18*k/16,c.y+9*k/16);g.closePath();g.fill();g.stroke()}
-    g.font='800 20px sans-serif';g.fillStyle='#fff';g.shadowColor='#000';g.shadowBlur=4;g.fillText((r.n||'').slice(0,10),top.x,bl.y-R-22);g.fillStyle='#9ff0d0';g.font='700 16px sans-serif';g.fillText(val(r),top.x,bl.y-R-3);g.shadowBlur=0}
+   if(r){const col=hex(hue(r.n)),R=2*bl.s;const cc=charCv(r);if(cc){g.drawImage(cc,bl.x-R*1.1,bl.y-R*1.25,R*2.2,R*2.2)}else{const sp=m3spr(col);g.drawImage(sp,bl.x-R,bl.y-R,R*2,R*2);g.fillStyle='#fff';g.font='800 '+(R*1.1)+'px sans-serif';g.fillText((r.n||'?').charAt(0).toUpperCase(),bl.x,bl.y+1)}
+    if(s.r===0){const c=m3proj(C,s.x,s.h+(cc?5.3:4.9)+Math.sin(tm*2)*.25,0),k=c.s;g.fillStyle='#ffd23f';g.strokeStyle='#8a5a10';g.lineWidth=2;g.beginPath();g.moveTo(c.x-18*k/16,c.y+9*k/16);g.lineTo(c.x-20*k/16,c.y-9*k/16);g.lineTo(c.x-9*k/16,c.y);g.lineTo(c.x,c.y-14*k/16);g.lineTo(c.x+9*k/16,c.y);g.lineTo(c.x+20*k/16,c.y-9*k/16);g.lineTo(c.x+18*k/16,c.y+9*k/16);g.closePath();g.fill();g.stroke()}
+    g.font='800 20px sans-serif';g.fillStyle='#fff';g.shadowColor='#000';g.shadowBlur=4;g.fillText((r.n||'').slice(0,10),top.x,bl.y-(cc?R*1.25:R)-22);g.fillStyle='#9ff0d0';g.font='700 16px sans-serif';g.fillText(val(r),top.x,bl.y-(cc?R*1.25:R)-3);g.shadowBlur=0}
    else{g.fillStyle='rgba(255,255,255,.35)';g.font='700 12px sans-serif';g.fillText('ว่าง',top.x,bl.y)}});
   g.textBaseline='alphabetic'}
  function pList(){if(RK.tab===2){const f=new Set(friends().concat([RK.uid]));const k=wkKey();return RK.rows.filter(x=>f.has(x.id)).sort((a,b)=>(b.wk===k?b.wc:0)-(a.wk===k?a.wc:0))}return board()}
@@ -7742,7 +7750,7 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
 
  function heartBurst(){if(!V)return;for(let i=0;i<16;i++)V.parts.push({x:V.host.x+(Math.random()-.5)*20,y:V.host.y-50,vx:(Math.random()-.5)*2.4,vy:-1.5-Math.random()*2,l:70+Math.random()*30})}
 
- function withLook(g,lk,we,f){const a=S.gender,b=S.look,c=S.wear,ow=WOV;try{S.gender=g;if(lk){S.look=Object.assign({},b,lk)}if(we){S.wear=Object.assign({},c,we)}WOV=null;f()}finally{S.gender=a;S.look=b;S.wear=c;WOV=ow}}
+ window.withLook=withLook;function withLook(g,lk,we,f){const a=S.gender,b=S.look,c=S.wear,ow=WOV;try{S.gender=g;if(lk){S.look=Object.assign({},b,lk)}if(we){S.wear=Object.assign({},c,we)}WOV=null;f()}finally{S.gender=a;S.look=b;S.wear=c;WOV=ow}}
 
  function loop(){if(!V)return;raf=requestAnimationFrame(loop);
   const cv=$('vsc');if(!cv)return;const c=cv.getContext('2d'),tm=Date.now()/1000,R=V.R;
