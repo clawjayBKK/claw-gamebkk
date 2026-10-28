@@ -5072,8 +5072,8 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
  setInterval(()=>{if(online()&&!document.hidden)push(true)},60000);
  setInterval(()=>{if(sc==='rank'&&online()&&!RK.busy)load()},20000);
  const worth=r=>(r.coins|0)+(r.gems|0)*PKR2;
- function doc(){const w=wc();return{n:(S.name||ACC),ln:ACC.toLowerCase(),coins:S.coins|0,gems:S.gems|0,lv:S.lv|0,wk:w.k,wc:w.c|0,ts:Date.now(),seen:Date.now()}}
- async function push(force){if(!online()||RK.busy)return;const d=doc(),sig=[d.coins,d.gems,d.lv,d.wk,d.wc,d.n].join(',');if(!force&&sig===RK.last)return;RK.busy=1;
+ function doc(){const w=wc(),d={n:(S.name||ACC),ln:ACC.toLowerCase(),coins:S.coins|0,gems:S.gems|0,lv:S.lv|0,wk:w.k,wc:w.c|0,ts:Date.now(),seen:Date.now()};try{if(window.roomSnap){d.rm=roomSnap();d.hv=window.hvSnap?hvSnap():null}}catch(e){}return d}
+ async function push(force){if(!online()||RK.busy)return;const d=doc(),sig=[d.coins,d.gems,d.lv,d.wk,d.wc,d.n,JSON.stringify(d.rm||0),JSON.stringify(d.hv||0)].join(',');if(!force&&sig===RK.last)return;RK.busy=1;
   try{await RK.db.doc('lb/'+RK.uid).set(d);RK.last=sig;RK.ok=true}catch(e){RK.ok=false}RK.busy=0}
  setInterval(()=>{if(RK.dirty||sc==='rank'){RK.dirty=0;push()}},60000);
  // ---- data ----
@@ -5083,12 +5083,13 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   try{const sn=await RK.db.collection('lb').limit(300).get();RK.rows=sn.docs.map(d=>Object.assign({id:d.id},d.data()));RK.fetched=Date.now()}catch(e){}
   try{const m=await RK.db.doc('fr/'+RK.uid).get();RK.mine=m.exists?(m.data().ids||[]):[]}catch(e){}
   try{const q=await RK.db.collection('fr').where('ids','array-contains',RK.uid).get();RK.theirs=q.docs.map(d=>d.id)}catch(e){}
-  render();updBadge()}
+  render();updBadge();try{window.onFrReq&&onFrReq()}catch(e){}}
  async function saveFr(){try{await RK.db.doc('fr/'+RK.uid).set({ids:RK.mine});RK.ok=true;return true}catch(e){RK.ok=false;return false}}
  const byId=id=>RK.rows.find(r=>r.id===id);
  const reqs=()=>RK.theirs.filter(i=>i!==RK.uid&&!RK.mine.includes(i));
  const friends=()=>RK.mine.filter(i=>RK.theirs.includes(i));
  const sent=()=>RK.mine.filter(i=>!RK.theirs.includes(i));
+ Object.assign(RK,{push,load,friends,byId,isOn,online,esc,reqs,render});
  function updBadge(){const b=$('rkBtn');if(!b)return;const n=reqs().length;b.dataset.n=n;b.firstChild&&(b.textContent='🏆 อันดับ / เพื่อน'+(n?' ('+n+' คำขอ)':''))}
  setInterval(()=>{if(online()&&sc!=='rank'&&Date.now()-RK.fetched>120000)load()},30000);
  // ---- ui ----
@@ -5124,7 +5125,7 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   h+='<input id="rkin" maxlength="16" placeholder="พิมพ์ชื่อเพื่อน (ชื่อผู้ใช้ในเกม)"><button class="pk big" id="rkadd" style="width:100%;margin-top:2px">➕ เพิ่มเพื่อน</button><div id="rkmsg" style="font-size:12px;margin:6px 0;min-height:16px">'+esc(RK.msg||'')+'</div>';
   const rq=reqs();if(rq.length){h+='<div class="sec">📩 คำขอเป็นเพื่อน</div>'+rq.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+esc(x.n)+'</span><button class="pk" data-ac="'+i+'">ยอมรับ</button></div>'}).join('')}
   const fr=friends();h+='<div class="sec">👥 เพื่อนของฉัน ('+fr.length+')</div>';
-  h+=fr.length?fr.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0,coins:0,gems:0,wc:0,wk:0};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl" style="font-size:11px">🧸 '+(x.wk===wkKey()?(x.wc|0):0)+' · 🪙 '+worth(x).toLocaleString()+'</span><button class="pk" data-rm="'+i+'" style="background:#8a80b8">✕</button></div>'}).join(''):'<div class="bx" style="text-align:center">ยังไม่มีเพื่อน เพิ่มจากรหัสด้านบนได้เลย</div>';
+  h+=fr.length?fr.map(i=>{const x=byId(i)||{n:'ผู้เล่น',lv:0,coins:0,gems:0,wc:0,wk:0};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl" style="font-size:11px">🧸 '+(x.wk===wkKey()?(x.wc|0):0)+' · 🪙 '+worth(x).toLocaleString()+'</span><button class="pk" data-visit="'+i+'" style="background:#ff8fc6">🏠</button><button class="pk" data-rm="'+i+'" style="background:#8a80b8">✕</button></div>'}).join(''):'<div class="bx" style="text-align:center">ยังไม่มีเพื่อน เพิ่มจากรหัสด้านบนได้เลย</div>';
   const sn=sent();if(sn.length)h+='<div class="sec">⏳ รอเพื่อนตอบรับ</div>'+sn.map(i=>{const x=byId(i)||{n:'ผู้เล่น'};return '<div class="rkr">'+av(x.n)+'<span class="nm">'+esc(x.n)+'</span><button class="pk" data-rm="'+i+'" style="background:#8a80b8">ยกเลิก</button></div>'}).join('');
   bd.innerHTML=h}
  // events
@@ -7651,10 +7652,152 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
   requestAnimationFrame(frame);
  }
  window.playIntro3D=play;
- // trigger: when the loading screen starts fading out (game entry)
- const iv=setInterval(()=>{const L=document.getElementById('ldr');if(!L||L.classList.contains('out')){clearInterval(iv);if(!window.__noIntro)play()}},100);
+ // trigger: play right away on game entry (the old 2D loading screen is hidden)
+ {const hs=document.createElement('style');hs.textContent='#ldr{display:none!important}';document.head.appendChild(hs);
+  const go1=()=>{if(!window.__noIntro)play()};if(document.readyState==='loading')addEventListener('DOMContentLoaded',go1);else setTimeout(go1,0)}
  // and again on a fresh login (if not just shown)
  try{const _lh=lgHide;lgHide=function(){const r=_lh.apply(this,arguments);if(Date.now()-lastPlay>60000&&!window.__noIntro)setTimeout(play,60);return r}}catch(e){}
+})();
+
+// ===== visit friends' bedrooms (read-only) + daily hearts =====
+(function(){
+ const dayKey=()=>Math.floor((Date.now()+7*36e5)/864e5);
+ const J=o=>JSON.parse(JSON.stringify(o==null?null:o));
+ window.roomSnap=function(){
+  return{w:S.wall,f:S.floor,fu:(S.furn||[]).map(f=>{const o=J(f);o.x=Math.round(f.x);o.y=Math.round(f.y);return o}),
+   ro:(S.room||[]).slice(0,40).map(o=>({t:o.t|0,x:Math.round(o.x),y:Math.round(o.y)})),
+   g:S.gender||'b',lk:J(S.look),we:J(S.wear),pe:(S.pets||[]).slice(0,6).map(J)}};
+ function hv(){if(!S.hv||S.hv.d!==dayKey())S.hv={d:dayKey(),ids:[]};return S.hv}
+ window.hvSnap=()=>{const h=hv();return{d:h.d,ids:h.ids.slice(0,60)}};
+ const heartsFor=id=>(RK.rows||[]).filter(r=>r.hv&&r.hv.d===dayKey()&&(r.hv.ids||[]).includes(id)).length;
+
+ // ---------- UI ----------
+ const st=document.createElement('style');st.textContent=
+ '#vsov{position:fixed;inset:0;z-index:3000;background:rgba(20,8,45,.82);display:none;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(10px + env(safe-area-inset-top)) 10px 20px}'+
+ '#vsov .vb{width:100%;max-width:440px;background:linear-gradient(#fff3fa,#efe4ff);border:4px solid #fff;border-radius:24px;box-shadow:0 8px 0 #c79ae6,0 14px 30px #0008;padding:10px;color:#5b3a52}'+
+ '#vsov h3{margin:2px 4px 8px;font-size:17px;color:#e0457b;display:flex;align-items:center;gap:6px}#vsov h3 small{margin-left:auto;font-size:12px;color:#8a6a9a}'+
+ '#vsc{width:100%;display:block;border-radius:16px;border:3px solid #fff;background:#2a1a40}'+
+ '#vsov .vr{display:flex;gap:8px;margin-top:8px}#vsov .vr button{flex:1;font-size:15px;padding:10px 4px}'+
+ '#vsov .fl{display:flex;flex-direction:column;gap:6px;margin-top:4px;max-height:60vh;overflow:auto}#vsov .fi{display:flex;align-items:center;gap:8px;background:#fff;border-radius:14px;padding:8px 10px;font-weight:800;font-size:14px}#vsov .fi span{flex:1}#vsov .fi button{flex:none;width:auto;padding:7px 12px;font-size:13px}'+
+ '#vsmsg{text-align:center;font-size:13px;font-weight:800;min-height:18px;margin-top:6px;color:#b0407a}'+
+ '#vsBtn{display:block;width:100%;margin:8px 0 4px;font-size:15px;padding:10px;background:linear-gradient(#ffb3d9,#ff7fbf)!important}';
+ document.head.appendChild(st);
+ const ov=document.createElement('div');ov.id='vsov';ov.innerHTML='<div class="vb"></div>';document.body.appendChild(ov);
+ const box=ov.firstChild;
+ {const rm=$('rm');if(rm&&rm.parentNode){const b=document.createElement('button');b.className='pk';b.id='vsBtn';b.textContent='🏠 ไปเที่ยวห้องเพื่อน';rm.parentNode.insertBefore(b,rm.nextSibling);b.addEventListener('click',()=>{try{SFX.pop()}catch(e){}openList()})}}
+
+ let V=null,raf=0;
+ function close(){ov.style.display='none';V=null;cancelAnimationFrame(raf)}
+ ov.addEventListener('click',e=>{if(e.target===ov)close()});
+
+ async function openList(){
+  ov.style.display='flex';V=null;cancelAnimationFrame(raf);
+  if(!(window.RK&&RK.online&&RK.online())){box.innerHTML='<h3>🏠 เที่ยวห้องเพื่อน</h3><div class="bx" style="background:#fff;border-radius:14px;padding:12px;font-size:14px">ต้องเข้าเกมด้วยบัญชี (ไม่ใช่โหมดแขก) และออนไลน์อยู่ ถึงจะไปเที่ยวห้องเพื่อนได้นะ</div><div class="vr"><button class="pk" id="vsX">ปิด</button></div>';$('vsX').onclick=close;return}
+  box.innerHTML='<h3>🏠 เที่ยวห้องเพื่อน</h3><div id="vsmsg">กำลังโหลดรายชื่อเพื่อน...</div>';
+  try{await RK.load()}catch(e){}
+  const fr=RK.friends();
+  let h='<h3>🏠 เที่ยวห้องเพื่อน <small>❤️ วันนี้ได้ '+heartsFor(RK.uid)+'</small></h3>';
+  h+=fr.length?'<div class="fl">'+fr.map(i=>{const x=RK.byId(i)||{n:'ผู้เล่น'};const on=RK.isOn(x);return '<div class="fi"><i class="od'+(on?' on':'')+'"></i><span>'+RK.esc(x.n)+' <small style="opacity:.55">Lv'+(x.lv|0)+'</small></span>'+(x.rm?'<button class="pk" data-vgo="'+i+'">ไปเที่ยว</button>':'<small style="opacity:.6">ยังไม่เปิดห้อง</small>')+'</div>'}).join('')+'</div>'
+   :'<div style="background:#fff;border-radius:14px;padding:12px;font-size:14px;text-align:center">ยังไม่มีเพื่อนเลย เพิ่มเพื่อนได้ที่หน้า 🏆 อันดับ / เพื่อน</div>';
+  h+='<div class="vr"><button class="pk" id="vsX" style="background:#8a80b8">ปิด</button></div>';
+  box.innerHTML=h;$('vsX').onclick=close;
+  box.querySelectorAll('[data-vgo]').forEach(b=>b.onclick=()=>{try{SFX.pop()}catch(e){}visit(b.dataset.vgo)})}
+ window.visitFriend=visit;window.openVisitList=openList;
+
+ function visit(id){
+  const x=RK.byId(id);if(!x||!x.rm){openList();return}
+  ov.style.display='flex';
+  const R=x.rm;
+  V={id,x,R,host:{x:200,y:205,tx:200,ty:205,face:-1,st:'walk',tm:0,walk:false,say:'ยินดีต้อนรับ '+(S.name||'')+'!',sayT:160},
+     me:{x:60,y:232,walk:true,face:1,say:'',sayT:0},meT:{x:120,y:222},pets:(R.pe||[]).map((p,i)=>({p,s:{x:110+i*30,y:205,tx:110+i*30,ty:205,face:1,st:'walk',tm:0}})),
+     dolls:(R.ro||[]).map(o=>({t:o.t,x:o.x,y:o.y})),parts:[],t0:performance.now()};
+  const given=hv().ids.includes(id);
+  box.innerHTML='<h3>🏠 ห้องของ '+RK.esc(x.n)+' <small><i class="od'+(RK.isOn(x)?' on':'')+'"></i>'+(RK.isOn(x)?'ออนไลน์':'ออฟไลน์')+' · ❤️ '+heartsFor(id)+'</small></h3>'+
+   '<canvas id="vsc" width="640" height="520"></canvas><div id="vsmsg">แตะพื้นเพื่อเดินเล่นในห้องเพื่อน</div>'+
+   '<div class="vr"><button class="pk" id="vsH"'+(given?' disabled style="opacity:.55"':'')+'>'+(given?'💗 ให้หัวใจแล้ววันนี้':'❤️ ให้หัวใจ')+'</button><button class="pk" id="vsL" style="background:#b59cff">👥 เพื่อนคนอื่น</button><button class="pk" id="vsX" style="background:#8a80b8">🔙 กลับ</button></div>';
+  $('vsX').onclick=close;$('vsL').onclick=()=>{try{SFX.pop()}catch(e){}openList()};
+  $('vsH').onclick=async()=>{const h=hv();if(h.ids.includes(id))return;h.ids.push(id);try{save()}catch(e){}
+   try{SFX.ok()}catch(e){}heartBurst();V.host.say='ขอบคุณสำหรับหัวใจนะ 💗';V.host.sayT=180;
+   const b=$('vsH');b.disabled=true;b.style.opacity=.55;b.textContent='💗 ให้หัวใจแล้ววันนี้';
+   try{await RK.push(true)}catch(e){}};
+  const cv=$('vsc');
+  cv.addEventListener('pointerdown',e=>{if(!V)return;const r=cv.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*320,py=(e.clientY-r.top)/r.height*260;
+   V.meT={x:Math.max(24,Math.min(296,px)),y:Math.max(160,Math.min(250,py))};
+   if(Math.hypot(px-V.host.x,py-(V.host.y-30))<26){V.host.say=['สวัสดี~','ห้องเราน่ารักมั้ย?','มาเล่นด้วยกันนะ','คีบได้ตัวไหนบ้าง?'][Math.random()*4|0];V.host.sayT=150;V.host.st='sit';V.host.tm=90;try{SFX.pop()}catch(e){}}});
+  cancelAnimationFrame(raf);loop()}
+
+ function heartBurst(){if(!V)return;for(let i=0;i<16;i++)V.parts.push({x:V.host.x+(Math.random()-.5)*20,y:V.host.y-50,vx:(Math.random()-.5)*2.4,vy:-1.5-Math.random()*2,l:70+Math.random()*30})}
+
+ function withLook(g,lk,we,f){const a=S.gender,b=S.look,c=S.wear,ow=WOV;try{S.gender=g;if(lk){S.look=Object.assign({},b,lk)}if(we){S.wear=Object.assign({},c,we)}WOV=null;f()}finally{S.gender=a;S.look=b;S.wear=c;WOV=ow}}
+
+ function loop(){if(!V)return;raf=requestAnimationFrame(loop);
+  const cv=$('vsc');if(!cv)return;const c=cv.getContext('2d'),tm=Date.now()/1000,R=V.R;
+  // sim
+  const H=V.host;if(H.st==='walk'){petStep(H,V.me,{x0:30,x1:290,y0:165,y1:245})}else petStep(H,null,{x0:30,x1:290,y0:165,y1:245});
+  H.walk=H.st==='walk'&&Math.hypot(H.tx-H.x,H.ty-H.y)>3;if(H.sayT>0)H.sayT--;
+  const M=V.me,dx=V.meT.x-M.x,dy=V.meT.y-M.y,d=Math.hypot(dx,dy);if(d>2){M.x+=dx/d*1.3;M.y+=dy/d*1.3*.7;M.walk=true;if(Math.abs(dx)>1)M.face=dx>0?1:-1}else M.walk=false;
+  V.pets.forEach(p=>petStep(p.s,H,{x0:24,x1:296,y0:160,y1:250}));
+  // draw (same layering as own room)
+  c.setTransform(2,0,0,2,0,0);RC=c;c.lineCap='round';c.lineJoin='round';
+  try{
+   (WP[R.w]||WP[S.wall]).draw(c,320,130,tm);c.fillStyle='#fff';c.fillRect(0,127,320,5);
+   c.save();c.translate(0,130);(FL[R.f]||FL[S.floor]).draw(c,320,130,tm);c.restore();
+   roomShell(c,tm);
+   const fu=(R.fu||[]).filter(f=>FD[f.id]);
+   fu.forEach(f=>{const dd=FD[f.id];if(dd.k==='wall'){c.save();c.translate(f.x,f.y);RC=c;dd.draw(c,tm,f);c.restore()}});
+   fu.forEach(f=>{const dd=FD[f.id];if(dd.k==='flat')drawFloorItem(c,f,dd,tm)});
+   const Z=[];
+   fu.forEach(f=>{if(FD[f.id].k==='floor')Z.push({y:f.y,f:()=>drawFloorItem(c,f,FD[f.id],tm)})});
+   V.dolls.forEach(o=>{if(imgs[o.t])Z.push({y:o.y,f:()=>drawDoll(c,o,tm)})});
+   Z.push({y:H.y,f:()=>withLook(R.g||'b',R.lk&&R.lk[R.g||'b']?R.lk:null,R.we,()=>{const b={x:H.x,y:H.y,walk:H.walk,face:H.face,hop:0,say:H.say,sayT:H.sayT};drawPlayer(c,b,64*ps(H.y));nameTag(c,V.x.n,H.x,H.y-64*ps(H.y)-(H.sayT>0?30:6))})});
+   Z.push({y:M.y,f:()=>{const b={x:M.x,y:M.y,walk:M.walk,face:M.face,hop:0,sayT:0};drawPlayer(c,b,64*ps(M.y));nameTag(c,'คุณ',M.x,M.y-64*ps(M.y)-6,1)}});
+   V.pets.forEach(p=>Z.push({y:p.s.y,f:()=>{try{drawPet(c,p.p,p.s,ps(p.s.y),tm)}catch(e){}}}));
+   Z.sort((a,b)=>a.y-b.y).forEach(z=>{try{z.f()}catch(e){}});
+   roomVig(c);
+  }catch(e){window.__vErr=String(e.stack||e).slice(0,300);c.setTransform(2,0,0,2,0,0);c.fillStyle='#2a1a40';c.fillRect(0,0,320,260);c.fillStyle='#fff';c.font='700 12px Sarabun';c.textAlign='center';c.fillText('โหลดห้องเพื่อนไม่สำเร็จ',160,130)}
+  // hearts
+  c.font='16px sans-serif';c.textAlign='center';V.parts=V.parts.filter(p=>p.l>0);V.parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.03;p.l--;c.globalAlpha=Math.min(1,p.l/30);c.fillText('❤️',p.x,p.y)});c.globalAlpha=1;
+ }
+ function nameTag(c,n,x,y,me){c.font='700 9px Sarabun,sans-serif';c.textAlign='center';const w=c.measureText(n).width+10;c.fillStyle=me?'rgba(111,224,192,.9)':'rgba(224,69,123,.9)';c.beginPath();c.roundRect?c.roundRect(x-w/2,y-11,w,13,6):c.rect(x-w/2,y-11,w,13);c.fill();c.fillStyle='#fff';c.fillText(n,x,y-1.5)}
+
+ // hearts received toast when entering own room
+ {const _g=go;go=function(s){const r=_g.apply(this,arguments);if(s==='room'&&window.RK&&RK.uid){const n=heartsFor(RK.uid);if(n>0&&S.hvSeen!==dayKey()+':'+n){S.hvSeen=dayKey()+':'+n;try{toast('rmsg','💗 วันนี้เพื่อนแวะมาให้หัวใจห้องคุณ '+n+' ดวง!')}catch(e){}}}return r}}
+ // visit from friends list (rank screen)
+ document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-visit]');if(b){e.stopPropagation();try{SFX.pop()}catch(_){}visit(b.dataset.visit)}},true);
+})();
+
+// ===== pop-up notification when someone sends a friend request =====
+(function(){
+ const st=document.createElement('style');st.textContent=
+ '#frN{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translate(-50%,-140%);z-index:2900;width:calc(100% - 24px);max-width:380px;background:linear-gradient(#fffbe8,#ffe6f3);color:#5b3a52;border:4px solid #fff;border-radius:22px;box-shadow:0 7px 0 #e0457b,0 14px 30px #0008;padding:10px 12px;transition:transform .45s cubic-bezier(.3,1.4,.5,1);font-size:14px;line-height:1.45}'+
+ '#frN.on{transform:translate(-50%,0)}#frN .h{display:flex;align-items:center;gap:8px;font-weight:800}#frN .h b{color:#e0457b}#frN .fric{font-size:28px;animation:frw 1s ease-in-out infinite alternate}@keyframes frw{to{transform:rotate(-12deg) scale(1.1)}}'+
+ '#frN .r{display:flex;gap:6px;margin-top:8px}#frN .r button{flex:1;font-size:14px;padding:8px 4px;height:auto;min-height:0;width:auto}#frN small{opacity:.65;font-size:12px}';
+ document.head.appendChild(st);
+ const el=document.createElement('div');el.id='frN';document.body.appendChild(el);
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let Q=[],cur=null,hideT=0;const names={};
+ const seen=()=>{if(!Array.isArray(S.frN))S.frN=[];return S.frN};
+ async function nameOf(id){const x=RK.byId&&RK.byId(id);if(x&&x.n)return x.n;if(names[id])return names[id];
+  try{const d=await RK.db.doc('lb/'+id).get();if(d.exists){const v=d.data();names[id]=v.n||'ผู้เล่น';if(RK.rows&&!RK.byId(id))RK.rows.push(Object.assign({id},v));return names[id]}}catch(e){}return 'ผู้เล่น'}
+ async function show(){if(cur||!Q.length)return;cur=Q.shift();const n=await nameOf(cur);
+  if(!RK.reqs().includes(cur)){cur=null;show();return}
+  el.innerHTML='<div class="h"><span class="fric">💌</span><div><b>'+esc(n)+'</b> ขอเป็นเพื่อนกับคุณ!<br><small>เป็นเพื่อนกันแล้วไปเที่ยวห้องกันได้นะ</small></div></div><div class="r"><button class="pk" id="frA">💗 ยอมรับ</button><button class="pk" id="frV" style="background:linear-gradient(#ffd86b,#e09a20)">ดูโปรไฟล์</button><button class="pk" id="frL" style="background:#8a80b8">ไว้ทีหลัง</button></div>';
+  el.classList.add('on');try{SFX.ok()}catch(e){}try{tone(880,.12,'triangle',.06);tone(1175,.18,'triangle',.06,.1)}catch(e){}
+  clearTimeout(hideT);hideT=setTimeout(done,15000);
+  const id=cur;
+  $('frA').onclick=async()=>{if(!RK.mine.includes(id))RK.mine.push(id);let ok=false;try{await RK.db.doc('fr/'+RK.uid).set({ids:RK.mine});ok=true}catch(e){}
+   el.querySelector('.h div').innerHTML=ok?'🎉 เป็นเพื่อนกับ <b>'+esc(n)+'</b> แล้ว!':'บันทึกไม่ได้ ลองใหม่ที่หน้าอันดับ/เพื่อนนะ';el.querySelector('.r').remove();
+   try{SFX.ok()}catch(e){}try{RK.render&&sc==='rank'&&RK.render()}catch(e){}clearTimeout(hideT);hideT=setTimeout(done,2200)};
+  $('frV').onclick=()=>{try{RK.tab=2;go('rank')}catch(e){}done()};
+  $('frL').onclick=done}
+ function done(){clearTimeout(hideT);el.classList.remove('on');cur=null;setTimeout(show,500)}
+ window.onFrReq=function(){try{const r=RK.reqs(),s=seen();let add=0;r.forEach(id=>{if(!s.includes(id)){s.push(id);add=1;if(!Q.includes(id)&&id!==cur)Q.push(id)}});if(add){if(s.length>200)s.splice(0,s.length-200);try{save()}catch(e){}show()}}catch(e){}};
+ // light poll for incoming requests (every 40s), faster than the full leaderboard refresh
+ setInterval(async()=>{if(!(window.RK&&RK.online&&RK.online())||document.hidden)return;
+  try{const q=await RK.db.collection('fr').where('ids','array-contains',RK.uid).get();RK.theirs=q.docs.map(d=>d.id);
+   if(!RK.mine.length&&!RK._mineLoaded){const m=await RK.db.doc('fr/'+RK.uid).get();RK.mine=m.exists?(m.data().ids||[]):[];RK._mineLoaded=1}
+   const b=$('rkBtn');if(b){const n=RK.reqs().length;b.textContent='🏆 อันดับ / เพื่อน'+(n?' ('+n+' คำขอ)':'')}
+   onFrReq()}catch(e){}},40000);
 })();
 
 // ---- starter doll cabinet + furniture locks ----
