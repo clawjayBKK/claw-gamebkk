@@ -7250,9 +7250,10 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
  const REQ=w=>{const r=SH.filter(x=>(x.map|0)===w).map(x=>x.req);return r.length?Math.min(...r):0};
  const GAP=600000;// one box per world every 10 minutes
  function mapTick(){
-  const now=Date.now();for(let w=0;w<WN.length;w++){
-   if(NEXT[w]==null)NEXT[w]=now+20000+Math.random()*20000;
-   if(!MB[w]&&now>=NEXT[w]){const s=spots(w)[0]||[160,100];MB[w]={x:s[0],y:s[1],t0:now}}}}
+  const now=Date.now(),lg=$('login');if(lg&&getComputedStyle(lg).display!=='none')return;
+  if(!S.bxAt){S.bxAt=now+20000+Math.random()*20000;save();return}
+  if(now>=S.bxAt){// every 10 minutes: exactly one box, on a random map
+   const w=Math.random()*WN.length|0,s=spots(w)[0]||[160,100];MB[w]={x:s[0],y:s[1],t0:now};S.bxAt=now+GAP;save()}}
  setInterval(mapTick,500);
  function drawMapBox(){
   if(typeof mapW==='undefined')return;const b=MB[mapW];if(!b)return;const c=mg,tm=Date.now()/1000;c.save();c.setTransform(2,0,0,2,0,0);
@@ -7266,7 +7267,7 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
   c.fillStyle='rgba(255,255,255,.92)';c.beginPath();c.roundRect?c.roundRect(x-26,y+12,52,11,5):c.rect(x-26,y+12,52,11);c.fill();c.fillStyle='#8a2a6a';c.font='800 7px sans-serif';c.fillText(lk?'ต้องถึง Lv '+REQ(mapW):'แตะเก็บกล่อง!',x,y+20);
   c.restore()}
  {const _dm=drawMap;drawMap=function(){const r=_dm.apply(this,arguments);try{if(sc==='map')drawMapBox()}catch(e){}return r}}
- {const mp2=document.getElementById('mp');mp2.addEventListener('pointerdown',e=>{if(typeof mapW==='undefined')return;const b=MB[mapW];if(!b)return;const[px,py]=rpt(e,mp2,220);if(Math.hypot(px-b.x,py-(b.y-6))<22){e.stopImmediatePropagation();e.preventDefault();try{ac()}catch(_){}if(S.lv<REQ(mapW)){try{toast('mmsg','🔒 แผนที่นี้ต้องถึงเลเวล '+REQ(mapW)+' ก่อนถึงจะเก็บกล่องได้');SFX.bad()}catch(_){}return}delete MB[mapW];NEXT[mapW]=Date.now()+GAP;giveBox('map');burstMsg()}},true)}
+ {const mp2=document.getElementById('mp');mp2.addEventListener('pointerdown',e=>{if(typeof mapW==='undefined')return;const b=MB[mapW];if(!b)return;const[px,py]=rpt(e,mp2,220);if(Math.hypot(px-b.x,py-(b.y-6))<22){e.stopImmediatePropagation();e.preventDefault();try{ac()}catch(_){}if(S.lv<REQ(mapW)){try{toast('mmsg','🔒 แผนที่นี้ต้องถึงเลเวล '+REQ(mapW)+' ก่อนถึงจะเก็บกล่องได้');SFX.bad()}catch(_){}return}delete MB[mapW];giveBox('map');burstMsg()}},true)}
  function burstMsg(){try{toast('mmsg','🎁 เก็บกล่องสุ่มได้แล้ว! กดปุ่ม 🎁 มุมขวาล่างเพื่อเปิด')}catch(e){}}
  // ---------- bonus box from claw wins ----------
  {const _c=collect;collect=function(p){const r=_c.apply(this,arguments);try{if(Math.random()<.07)setTimeout(()=>giveBox('claw'),1800)}catch(e){}return r}}
