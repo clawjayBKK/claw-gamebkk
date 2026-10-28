@@ -8113,6 +8113,113 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
   return _f.apply(this,arguments)};
 })();
 
+// ===== secret-place cutscene for 1M+ coins: scam story (lose 90%) =====
+(function(){
+ const st=document.createElement('style');st.textContent=
+ '#scQ{position:fixed;inset:0;z-index:3200;background:rgba(10,6,25,.7);display:none;align-items:center;justify-content:center;padding:16px}'+
+ '#scQ .w{width:100%;max-width:340px;background:linear-gradient(#fffbe8,#ffe6f3);border:4px solid #fff;border-radius:24px;box-shadow:0 8px 0 #e0457b,0 16px 34px #0008;padding:16px;color:#5b3a52;text-align:center;font-size:15px;line-height:1.5}'+
+ '#scQ h3{margin:0 0 6px;color:#e0457b;font-size:20px}#scQ .r{display:flex;gap:8px;margin-top:12px}#scQ .r button{flex:1;padding:10px 4px;font-size:15px;height:auto;min-height:0;width:auto}'+
+ '#scV{position:fixed;inset:0;z-index:3300;background:#000;display:none;touch-action:none}#scV canvas{width:100%;height:100%;display:block}'+
+ '#scR{position:absolute;left:0;right:0;bottom:calc(24px + env(safe-area-inset-bottom));display:none;justify-content:center;padding:0 16px}'+
+ '#scR .w{width:100%;max-width:340px;background:linear-gradient(#fffbe8,#ffe6f3);border:4px solid #fff;border-radius:24px;box-shadow:0 8px 0 #e0457b,0 16px 34px #0008;padding:14px;color:#5b3a52;text-align:center;font-size:14px;line-height:1.5}#scR h3{margin:0 0 6px;color:#d9304f;font-size:19px}#scR button{margin-top:10px;padding:10px 24px;font-size:15px;height:auto;min-height:0;width:auto}';
+ document.head.appendChild(st);
+ const Q=document.createElement('div');Q.id='scQ';Q.innerHTML='<div class="w"><h3>🎉 ยินดีด้วย!</h3>คุณมีเงินเกิน <b>1 ล้านบาท</b> แล้ว<br>อยากไปคีบตุ๊กตาที่<br><b>“สถานที่ลับ”</b> 🤫 ไหม?<div class="r"><button class="pk" id="scY">🚗 ไปเลย!</button><button class="pk" id="scN" style="background:#8a80b8">ไว้ก่อน</button></div></div>';document.body.appendChild(Q);
+ const V=document.createElement('div');V.id='scV';V.innerHTML='<canvas></canvas><div id="scR"><div class="w"><h3>😢 เสียใจด้วย</h3>คุณโดนมิจฉาชีพหลอก!<br>เงินหายไป <b id="scL"></b> 🪙 (90%)<br><small>อย่าเชื่อคำชวนไปสถานที่ลับๆ หรือของฟรีแปลกๆ นะ</small><br><button class="pk" id="scX">รับทราบ…</button></div></div>';document.body.appendChild(V);
+ const cv=V.querySelector('canvas'),g=cv.getContext('2d');let W=0,H=0;
+ const fmt=n=>Math.round(n).toLocaleString();
+ const lerp=(a,b,t)=>a+(b-a)*Math.max(0,Math.min(1,t)),sm=t=>{t=Math.max(0,Math.min(1,t));return t*t*(3-2*t)};
+ const mixA=(a,b,t)=>a.map((v,i)=>Math.round(lerp(v,b[i],t))),mix=(a,b,t)=>'rgb('+mixA(a,b,t).join(',')+')';
+ let on=false,t0=0,raf=0,c0=0,c1=0,done=0,fl=[],lastTick=0,lastFl=0;
+ const tn=(f,d,ty,v,dl)=>{try{tone(f,d,ty||'triangle',v||.05,dl||0)}catch(e){}};
+ function resize(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;g.setTransform(d,0,0,d,0,0)}
+ const SPD=120;
+ function pine(x,y,h,col){g.fillStyle='#5a3a22';g.fillRect(x-2,y-h*.2,4,h*.2);g.fillStyle=col;for(let i=0;i<3;i++){const yy=y-h*.2-i*h*.26,w=h*.34*(1-i*.22);g.beginPath();g.moveTo(x-w,yy);g.lineTo(x,yy-h*.4);g.lineTo(x+w,yy);g.closePath();g.fill()}}
+ function house(x,y,w,h,col){g.fillStyle=col;g.fillRect(x-w/2,y-h,w,h);g.fillStyle='#c0504a';g.beginPath();g.moveTo(x-w/2-4,y-h);g.lineTo(x,y-h-w*.4);g.lineTo(x+w/2+4,y-h);g.closePath();g.fill();g.fillStyle='#ffe9a0';g.fillRect(x-w*.2,y-h*.65,w*.4,h*.3)}
+ function rock(x,y,s){g.fillStyle='#7a7a8a';g.beginPath();g.moveTo(x-s,y);g.lineTo(x-s*.5,y-s*.8);g.lineTo(x+s*.3,y-s);g.lineTo(x+s,y);g.closePath();g.fill();g.fillStyle='#fff';g.beginPath();g.moveTo(x-s*.5,y-s*.8);g.lineTo(x+s*.3,y-s);g.lineTo(x+s*.1,y-s*.6);g.closePath();g.fill()}
+ function car(x,y,t,night){
+  const bob=Math.sin(t*14)*1.2;g.save();g.translate(x,y+bob);
+  g.fillStyle='#e0457b';g.beginPath();g.moveTo(-62,-8);g.lineTo(-62,-30);g.quadraticCurveTo(-58,-40,-44,-40);g.lineTo(-34,-42);g.lineTo(-26,-70);g.lineTo(26,-70);g.lineTo(40,-42);g.lineTo(56,-38);g.quadraticCurveTo(66,-34,66,-8);g.closePath();g.fill();
+  g.strokeStyle='#fff';g.lineWidth=3;g.stroke();
+  g.fillStyle='#bfe4ff';g.beginPath();g.moveTo(-22,-44);g.lineTo(-17,-64);g.lineTo(18,-64);g.lineTo(30,-44);g.closePath();g.fill();
+  g.save();g.clip();try{drawChar(g,S.gender||'b',0,0,-2,-2,68,false,1,t)}catch(e){}g.restore();g.fillStyle='rgba(190,230,255,.22)';g.beginPath();g.moveTo(-22,-44);g.lineTo(-17,-64);g.lineTo(18,-64);g.lineTo(30,-44);g.closePath();g.fill();
+  g.fillStyle=night?'#fff6a0':'#ffe27a';g.fillRect(58,-26,8,7);
+  if(night){g.fillStyle='rgba(255,246,160,.25)';g.beginPath();g.moveTo(66,-24);g.lineTo(190,-50);g.lineTo(190,2);g.closePath();g.fill()}
+  [-34,38].forEach(wx=>{g.save();g.translate(wx,-4);g.fillStyle='#333';g.beginPath();g.arc(0,0,13,0,7);g.fill();g.rotate(t*18);g.fillStyle='#ddd';g.fillRect(-2,-9,4,18);g.fillRect(-9,-2,18,4);g.restore()});
+  g.restore()}
+ function drive(t){
+  // phases: 0-5 town, 5-10 forest, 10-15.5 mountain
+  const p1=sm((t-4)/2),p2=sm((t-9)/2.5);
+  const top=mix(mixA([150,210,255],[60,120,80],p1),[250,150,110],p2),bot=mix(mixA([220,240,255],[150,200,140],p1),[255,200,120],p2);
+  const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,top);gr.addColorStop(.7,bot);g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const gy=H*.68,cx=W*.38,sc=Math.min(1,W/380),X=t<15?Math.min(t,15)*SPD:15*SPD;
+  // far hills
+  g.fillStyle=mix(mixA([170,200,230],[90,140,110],p1),[150,100,130],p2);g.beginPath();g.moveTo(0,gy-40);for(let x=0;x<=W;x+=20)g.lineTo(x,gy-60-Math.sin((x+X*.15)/70)*22-Math.sin((x+X*.15)/31)*8);g.lineTo(W,gy);g.lineTo(0,gy);g.fill();
+  const tilt=sm((t-9.5)/2.5)*.34;
+  g.save();g.translate(cx,gy);g.rotate(-tilt);g.scale(sc,sc);
+  const Lx=W/sc;g.fillStyle=mix(mixA([140,210,130],[40,110,60],p1),[110,100,110],p2);g.fillRect(-W*2,0,W*4,H*2);
+  g.fillStyle='#555566';g.fillRect(-W*2,0,W*4,26);g.fillStyle='#ddd';for(let i=-30;i<30;i++){const x=i*60-(X%60);g.fillRect(x,12,28,3)}
+  const sp=70,P0=Math.floor((X-Lx)/sp)*sp;
+  for(let P=P0;P<X+Lx;P+=sp){const x=P-X,k=((P/sp)|0),z=P<5*SPD?0:P<10*SPD?1:2,r=((k*9301+49297)%233280)/233280;
+   if(z===0){if(k%2===0)house(x,-4,44+r*20,36+r*26,['#ffd6e0','#d6ecff','#fff3c4'][k%3]);else{pine(x,-2,60,'#4aa860')}}
+   else if(z===1){pine(x,-4-(r*10),70+r*60,'#1f6a3a');if(k%3===0)pine(x+30,-26,50,'#2a7a46')}
+   else{if(k%2)rock(x,-4,18+r*16);else pine(x,-4,50+r*30,'#2c5a44')}}
+  car(0,0,t,t>10);g.restore();
+  if(t>10){g.fillStyle='rgba(20,10,50,'+(.35*sm((t-11)/4))+')';g.fillRect(0,0,W,H)}
+  const cap=t<5?'🚗 นั่งรถไปตามทาง…':t<10?'🌲 เข้าป่า…':'⛰️ ขึ้นภูเขา…';cap_(cap)}
+ function cap_(s){g.font='800 '+Math.max(18,Math.min(26,W/16))+'px Sarabun,sans-serif';g.textAlign='center';g.fillStyle='#fff';g.shadowColor='#0009';g.shadowBlur=8;g.fillText(s,W/2,H*.16);g.shadowBlur=0}
+ function arrive(t){
+  const u=t-15.5;g.fillStyle='#120a28';g.fillRect(0,0,W,H);
+  for(let i=0;i<40;i++){g.fillStyle='rgba(255,255,255,'+(.3+.3*Math.sin(t*2+i))+')';g.fillRect((i*97)%W,(i*53)%(H*.5),2,2)}
+  g.fillStyle='#2a2040';g.beginPath();g.moveTo(0,H*.62);g.lineTo(W*.3,H*.4);g.lineTo(W*.55,H*.58);g.lineTo(W*.8,H*.36);g.lineTo(W,H*.6);g.lineTo(W,H);g.lineTo(0,H);g.fill();
+  const gy=H*.78;g.fillStyle='#1c1630';g.fillRect(0,gy,W,H);
+  // cabin
+  const bx=W*.68,bw=Math.min(150,W*.4);g.fillStyle='#3a2a28';g.fillRect(bx-bw/2,gy-bw*.6,bw,bw*.6);g.fillStyle='#2a1c1c';g.beginPath();g.moveTo(bx-bw/2-8,gy-bw*.6);g.lineTo(bx,gy-bw*.95);g.lineTo(bx+bw/2+8,gy-bw*.6);g.fill();
+  g.fillStyle='#ffd24a';g.fillRect(bx-bw*.32,gy-bw*.45,bw*.24,bw*.22);g.fillStyle='#120a0a';g.fillRect(bx+bw*.1,gy-bw*.4,bw*.22,bw*.4);
+  // shady man
+  const mx=bx-bw*.75+Math.min(1,u/1.5)*0;g.fillStyle='#0c0814';g.beginPath();g.arc(mx,gy-84,15,0,7);g.fill();g.fillRect(mx-18,gy-72,36,70);g.fillStyle='#ffd24a';g.fillRect(mx-8,gy-88,5,3);g.fillRect(mx+3,gy-88,5,3);
+  // car + player
+  const px=W*.2+Math.min(1,u/1.2)*W*.08;
+  if(u<3){car(W*.18,gy,0,true)}
+  if(u>=1.4&&u<4){const w=u<3?'':'';g.save();g.font='700 '+Math.max(14,W/26)+'px Sarabun,sans-serif';const tx=u<2.8?'ยินดีต้อนรับครับ… ดื่มน้ำต้อนรับก่อนนะ 🥤':'ดื่มเลย… ฟรีๆ 😈';const tw=g.measureText(tx).width+24;const bx2=Math.min(W-tw/2-8,Math.max(tw/2+8,mx));g.fillStyle='#fff';g.beginPath();g.roundRect?g.roundRect(bx2-tw/2,gy-150,tw,34,12):g.rect(bx2-tw/2,gy-150,tw,34);g.fill();g.fillStyle='#4a2a40';g.textAlign='center';g.fillText(tx,bx2,gy-128);g.restore()}
+  if(u>=3){ // player standing then falls
+   const f=sm((u-4)/1);g.save();g.translate(W*.38,gy);g.rotate(f*1.45);g.translate(0,0);try{drawChar(g,S.gender||'b',0,0,0,0,86,false,1,t)}catch(e){}g.restore();
+   if(u>4.2){g.font='800 22px sans-serif';g.textAlign='center';g.fillStyle='#fff';g.fillText('💫',W*.38+30,gy-24-Math.sin(t*6)*4)}}
+  cap_(u<3?'🏚️ ถึงที่ลับแล้ว…':u<5?'🥤 ดื่มน้ำเข้าไป…':'💫 เวียนหัว…');
+  const fo=sm((u-5.2)/1.2);if(fo>0){g.fillStyle='rgba(0,0,0,'+fo+')';g.fillRect(0,0,W,H)}}
+ function result(t){
+  const u=t-22.2;g.fillStyle='#000';g.fillRect(0,0,W,H);
+  if(u<1.6){g.font='800 40px sans-serif';g.textAlign='center';g.fillStyle='rgba(255,255,255,'+Math.min(1,u*2)*(1-Math.max(0,(u-1.1)/.5))+')';g.fillText('Zzz…',W/2,H/2);return}
+  const v=u-1.6,al=sm(v/1.5);const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#2a1a3a');gr.addColorStop(1,'#704050');g.fillStyle=gr;g.globalAlpha=al;g.fillRect(0,0,W,H);g.globalAlpha=1;
+  g.textAlign='center';g.fillStyle='#fff';g.font='800 '+Math.max(16,W/20)+'px Sarabun,sans-serif';g.fillText('ตื่นขึ้นมา… กระเป๋าเบาจัง 😳',W/2,H*.2);
+  // coin counter drops
+  const d=sm((v-1.2)/5),cur=lerp(c0,c1,d),shake=d>0&&d<1?Math.sin(t*60)*5:0;
+  g.save();g.translate(W/2+shake,H*.38);g.font='800 '+Math.max(30,W/9)+'px Sarabun,sans-serif';g.fillStyle=d>0?'#ff6a6a':'#ffe27a';g.shadowColor='#000a';g.shadowBlur=10;g.fillText('🪙 '+fmt(cur),0,0);g.restore();
+  if(d>0&&d<1&&t-lastFl>.22){lastFl=t;const step=(c0-c1)/22;fl.push({x:W/2+(Math.random()-.5)*W*.5,y:H*.46,t:t,n:Math.round(step*(.7+Math.random()*.6))});tn(260+Math.random()*120,.08,'sawtooth',.04)}
+  fl=fl.filter(f=>t-f.t<1.4);fl.forEach(f=>{const a=1-(t-f.t)/1.4;g.globalAlpha=a;g.font='800 '+Math.max(16,W/22)+'px sans-serif';g.fillStyle='#ff8a8a';g.fillText('-'+fmt(f.n)+' 🪙',f.x,f.y+(t-f.t)*60);g.globalAlpha=1});
+  // fallen player
+  g.save();g.translate(W/2,H*.78);g.rotate(1.45);try{drawChar(g,S.gender||'b',0,0,0,0,80,false,1,t)}catch(e){}g.restore();
+  if(v>6.8&&!done){done=1;$('scL').textContent=fmt(c0-c1);$('scR').style.display='flex';tn(220,.3,'sawtooth',.06);tn(165,.5,'sawtooth',.06,.25)}}
+ let faded=0;
+ function loop(){raf=requestAnimationFrame(loop);const t=(performance.now()-t0)/1000;
+  if(t<15.5)drive(t);else if(t<22.2){arrive(t)}else result(t);
+  if(t>=20.5&&!faded){faded=1;c0=S.coins|0;c1=Math.floor(c0*.1);S.coins=c1;S.scam=(S.scam|0)+1;try{save()}catch(e){}try{hud()}catch(e){}}
+  if(t<15&&t-lastTick>.5){lastTick=t;tn(110+(t%3)*10,.05,'square',.015)}}
+ function start(){if(on)return;on=true;done=0;faded=0;fl=[];lastTick=0;lastFl=0;resize();V.style.display='block';$('scR').style.display='none';c0=S.coins|0;c1=Math.floor(c0*.1);t0=performance.now();loop()}
+ function close(){cancelAnimationFrame(raf);V.style.display='none';on=false;try{hud()}catch(e){}try{SFX.pop()}catch(e){}}
+ addEventListener('resize',()=>{if(on)resize()});
+ $('scX').onclick=close;
+ $('scY').onclick=()=>{Q.style.display='none';try{SFX.pop()}catch(e){}start()};
+ $('scN').onclick=()=>{Q.style.display='none';askT=Date.now();try{SFX.pop()}catch(e){}};
+ let askT=0;const t00=Date.now();
+ window.scamTest=start;
+ setInterval(()=>{if(on||Q.style.display==='flex'||document.hidden)return;if(Date.now()-t00<15000)return;if(askT&&Date.now()-askT<20*60000)return;
+  if((S.coins|0)<1e6)return;if(document.querySelector('#ldr')&&getComputedStyle(document.querySelector('#ldr')).display!=='none')return;
+  if(document.getElementById('m3')||document.getElementById('i3'))return;
+  const bad=['#scV','#vsov'].some(s=>{const e=document.querySelector(s);return e&&e.style.display&&e.style.display!=='none'});if(bad)return;
+  if(document.querySelector('#mglock')&&0)return;
+  askT=Date.now();Q.style.display='flex';try{SFX.ok()}catch(e){}},3000);
+})();
+
 // ---- starter doll cabinet + furniture locks ----
 (function(){
 const st0=document.createElement('style');st0.textContent='#rpanel .ic{position:relative}#rpanel .lkb{position:absolute;top:2px;right:2px;font-size:13px;background:rgba(0,0,0,.35);border-radius:8px;padding:0 4px;line-height:18px;z-index:2}#rpanel .ic .lvt{position:absolute;left:2px;top:2px;font-size:10px;background:#ff5f7a;color:#fff;border-radius:8px;padding:0 5px;font-weight:700}#rpanel .sk{width:100%;aspect-ratio:1;border-radius:12px;border:2px dashed #6b4bb0;background:#2a2272;color:#cfc4ff;font-size:22px;padding:2px}#rpanel .sk.on{border:2px solid #ffd23f}#rpanel .sk img{height:100%;max-height:44px;display:block;margin:auto}';document.head.appendChild(st0);
