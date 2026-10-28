@@ -1625,7 +1625,8 @@ function drawPet(c,pet,p,k,tm){
  spr(c,im,p.x,p.y-hop,im.height*.69*k*(set.s||1),0,1,1,p.face<0);
  if(pet.hun<20){c.font='11px sans-serif';c.textAlign='center';c.fillStyle='#fff';c.fillText('🍖',p.x+14*k,p.y-44*k)}
 }
-function petXp(p,n){p.xp+=n;let up=false;while(p.xp>=p.lv*25){p.xp-=p.lv*25;p.lv++;up=true}if(up)SFX.lvl();return up}
+const petNeed=p=>Math.round(p.lv*100*(1+p.lv/5));
+function petXp(p,n){p.xp+=n;let up=false;while(p.xp>=petNeed(p)){p.xp-=petNeed(p);p.lv++;up=true}if(up)SFX.lvl();return up}
 function petTap(i,sc,P,x,y){const p=S.pets[i];if(!p)return;SFX.bark();const full=p.hap>=100;p.hap=Math.min(100,p.hap+3);if(!full)petXp(p,2);const s=psim(sc,i);s.st='jump';s.tm=30;burst(P,x,y-40,5,'💖');save();hud()}
 setInterval(()=>{S.pets.forEach(p=>{p.hun=Math.max(0,p.hun-1.2);p.hap=Math.max(0,p.hap-(p.hun<25?1.2:.5))});save()},10000);
 
@@ -5456,7 +5457,7 @@ function renderPet(){
  $('pshop').innerHTML=PETD.map(d=>{const own=S.pets.some(p=>p.v===d.v);return '<div class="ic big-ic'+(own?' on':'')+'" data-pv="'+d.v+'"><img src="'+petFront(d.v)+'"><span class="nm">'+d.n+'</span><span class="pr">'+(own?'✔ มีแล้ว':'🪙 '+d.p)+'</span></div>'}).join('');
  renderCare();
 }
-function bars(p){return '<div class="small">🍖 อิ่ม '+Math.round(p.hun)+'/100</div><div class="bar"><i style="width:'+p.hun+'%;background:linear-gradient(#ffb36b,#e0742b)"></i></div><div class="small">💖 สุขใจ '+Math.round(p.hap)+'/100</div><div class="bar"><i style="width:'+p.hap+'%;background:linear-gradient(#ff9fd0,#e0457b)"></i></div><div class="small">⭐ เลเวล '+p.lv+' · XP '+p.xp+'/'+p.lv*25+'</div><div class="bar"><i style="width:'+(p.xp/(p.lv*25)*100)+'%;background:linear-gradient(#6fd0ff,#3b9dff)"></i></div>'}
+function bars(p){return '<div class="small">🍖 อิ่ม '+Math.round(p.hun)+'/100</div><div class="bar"><i style="width:'+p.hun+'%;background:linear-gradient(#ffb36b,#e0742b)"></i></div><div class="small">💖 สุขใจ '+Math.round(p.hap)+'/100</div><div class="bar"><i style="width:'+p.hap+'%;background:linear-gradient(#ff9fd0,#e0457b)"></i></div><div class="small">⭐ เลเวล '+p.lv+' · XP '+p.xp+'/'+petNeed(p)+'</div><div class="bar"><i style="width:'+(p.xp/petNeed(p)*100)+'%;background:linear-gradient(#6fd0ff,#3b9dff)"></i></div>'}
 const pName=p=>p.nm||PETD.find(d=>d.v===p.v).n;
 function renderCare(){
  if(!S.pets.length){$('pcare').innerHTML='<div class="small" style="text-align:center;padding:8px">ยังไม่มีสัตว์เลี้ยง ซื้อน้องหมา/น้องแมวจากร้านด้านบนได้เลย! น้องที่สุขใจช่วยหาเหรียญให้ด้วยนะ</div>';return}
