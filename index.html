@@ -7287,6 +7287,117 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
 // ไอเทม "ขยายโซน": บวกความกว้างโซนเขียวหลังตัวปรับความยากอื่นทำงานครบแล้ว (เดิมโดนดาว/ไฟดับหดจนแทบไม่เห็นผล)
 {const _sz=setZone;setZone=function(){_sz.apply(this,arguments);try{if(mini&&mini.on&&mini.on[1]){mini.w=Math.min(80,mini.w+16);mini.z=Math.max(0,Math.min(100-mini.w,mini.zc-mini.w/2));$('zn').style.left=mini.z+'%';$('zn').style.width=mini.w+'%'}}catch(e){}}}
 
+// ===== ระบบผสมใหม่: ย่อยตุ๊กตาเป็นนุ่น (ตัวละ 2 นุ่น) · ครบ 100 นุ่น = ได้ตุ๊กตา 1 ตัว · ตุ๊กตา 3D ค่อยๆ อวบขึ้น =====
+(function(){
+ const PER=2,NEED=100,MAXSEL=50,BEST_N=25;
+ const FL={tab:'fluff',sel:{},steps:[],cur:null,shown:0,parts:[],pf:[],spr:[],flash:0,busy:false,az:0};
+ window.__FL=FL;S.mgTut=1;
+ const fl=()=>+S.fluff||0;
+ // ---------- DOM ----------
+ const st=document.createElement('style');
+ st.textContent='#mgTabs{display:flex;gap:8px;margin:0 0 8px}#mgTabs button{flex:1;padding:10px 4px;font-size:15px;border-radius:16px;border:3px solid #fff3;background:#2a2272;color:#fff;font-weight:800}#mgTabs button.on{background:linear-gradient(#ff9fd0,#e0457b);border-color:#fff}'+
+ '#flc{width:100%;display:block;border-radius:22px;border:3px solid #fff;background:#2a1a4a;touch-action:manipulation}#flbar{margin:8px 0;padding:8px 10px;border-radius:16px;background:#241848;border:2px solid #8a6fe055;font-size:13px;color:#e8defc}#flbar .bar{height:14px;border-radius:8px;background:#0006;margin-top:5px;overflow:hidden}#flbar .bar i{display:block;height:100%;background:linear-gradient(90deg,#fff,#ffd0ee,#ff9ac8);transition:width .25s}'+
+ '#flgrid{grid-template-columns:repeat(5,1fr)!important;max-height:calc(5*100px + 4*6px + 16px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}#flgrid .ic{min-height:92px;padding:4px 1px}#flgrid .ic img{width:100%;max-width:56px}#flgrid .nm{font-size:9px}#flgrid .pr{font-size:9px}';
+ document.head.appendChild(st);
+ const sc0=document.getElementById('sc-merge');
+ const tabs=document.createElement('div');tabs.id='mgTabs';tabs.innerHTML='<button data-t="fluff" class="on">🧶 ย่อยเป็นนุ่น</button><button data-t="lvl">🔮 ผสมเลเวล</button>';
+ const panel=document.createElement('div');panel.id='flp';
+ panel.innerHTML='<canvas id="flc" width="640" height="420"></canvas><div id="flbar"></div><div id="flmsg" class="msg" style="font-size:12px">เลือกตุ๊กตาในสต๊อกมาย่อยเป็นนุ่น ตัวละ 🧶'+PER+' · นุ่นครบ '+NEED+' ได้ตุ๊กตาใหม่ 1 ตัว!</div>'+
+  '<div class="row"><button class="pk big" id="flGo">🌀 ย่อยเป็นนุ่น</button></div>'+
+  '<div class="row" style="margin-top:8px"><button class="pk" id="flBest" style="background:linear-gradient(#fff2a0,#ffc42e 55%,#f09010);color:#5a3000;border-color:#fff">⭐ เลือก '+BEST_N+' ตัวที่ได้เงิน/วิถูกสุด</button><button class="pk blue" id="flClr" style="flex:.5">ล้าง</button></div>'+
+  '<h2>🧸 ตุ๊กตาในสต๊อก (เลื่อนดู · แตะเพื่อเลือก)</h2><div id="flgrid" class="panel igrid"></div>';
+ sc0.insertBefore(panel,sc0.firstChild);sc0.insertBefore(tabs,sc0.firstChild);
+ const OLD=()=>[$('mgc'),$('mmsg2'),$('minfo2'),$('mgBtn').parentNode,$('mgrid').previousElementSibling,$('mgrid')];
+ function applyTab(){
+  const f=FL.tab==='fluff';panel.style.display=f?'block':'none';OLD().forEach(e=>{if(e)e.style.display=f?'none':''});
+  tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.t===FL.tab));
+  if(f)renderFl();else{try{renderMerge()}catch(e){}}}
+ tabs.addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;FL.tab=b.dataset.t;try{SFX.pop()}catch(_){}applyTab()});
+ {const _g=go;go=function(s){const r=_g.apply(this,arguments);if(s==='merge'){FL.tab='fluff';applyTab()}return r}}
+ // ---------- selection ----------
+ const inc=t=>slotVal(t)*LK;
+ const selN=()=>Object.values(FL.sel).reduce((a,b)=>a+b,0);
+ function renderFl(){
+  for(const t in FL.sel){if((S.own[t]|0)<FL.sel[t]){FL.sel[t]=S.own[t]|0}if(!FL.sel[t])delete FL.sel[t]}
+  const L=T.map((q,i)=>i).filter(i=>(S.own[i]|0)>0).sort((a,b)=>inc(a)-inc(b));
+  setHTML('flgrid',L.length?L.map(i=>{const k=FL.sel[i]|0,q=T[i];return '<div class="ic'+(k?' on':'')+'" data-fl="'+i+'" style="border-color:'+(k?'#ffd23f':q.c)+'">'+(k?'<b class="rdy">✅×'+k+'</b>':'')+'<img src="'+IMG[i]+'"><span class="nm">'+q.n+'</span><span class="pr">มี '+S.own[i]+' · +'+inc(i).toFixed(1)+'/วิ</span></div>'}).join(''):'<div class="small" style="grid-column:1/-1;text-align:center">ยังไม่มีตุ๊กตาในสต๊อก ไปคีบที่ตู้คีบก่อนนะ 🎮</div>');
+  const n=selN(),total=fl()+n*PER;
+  setHTML('flbar','🧶 นุ่นสะสม <b style="color:#ffe27a">'+Math.floor(FL.busy?FL.shown:fl())+' / '+NEED+'</b>'+(n?' · เลือก <b>'+n+'</b> ตัว → +'+n*PER+' นุ่น'+(total>=NEED?' <b style="color:#9ff0d0">(ได้ตุ๊กตา '+Math.floor(total/NEED)+' ตัว!)</b>':''):'')+'<div class="bar"><i style="width:'+Math.min(100,(FL.busy?FL.shown:fl())/NEED*100)+'%"></i></div>');
+  $('flGo').disabled=FL.busy||!n;$('flGo').textContent=FL.busy?'⏳ กำลังย่อย...':n?'🌀 ย่อย '+n+' ตัวเป็นนุ่น (+'+n*PER+' 🧶)':'🌀 เลือกตุ๊กตาก่อน';
+  $('flBest').disabled=FL.busy;$('flClr').disabled=FL.busy||!n}
+ $('flgrid').addEventListener('click',e=>{const c=e.target.closest('[data-fl]');if(!c||FL.busy)return;const t=+c.dataset.fl,k=FL.sel[t]|0;
+  if(k>=(S.own[t]|0)){delete FL.sel[t]}else if(selN()>=MAXSEL){toast('flmsg','ย่อยได้สูงสุด '+MAXSEL+' ตัวต่อรอบนะ');try{SFX.bad()}catch(_){}return}else FL.sel[t]=k+1;
+  try{SFX.pop()}catch(_){}renderFl()});
+ $('flClr').addEventListener('click',()=>{FL.sel={};renderFl()});
+ $('flBest').addEventListener('click',()=>{if(FL.busy)return;const L=[];T.forEach((q,i)=>{for(let k=0;k<(S.own[i]|0);k++)L.push(i)});L.sort((a,b)=>inc(a)-inc(b));FL.sel={};L.slice(0,BEST_N).forEach(t=>{FL.sel[t]=(FL.sel[t]|0)+1});try{SFX.pop()}catch(_){}renderFl()});
+ // ---------- grind ----------
+ $('flGo').addEventListener('click',()=>{try{ac()}catch(_){}if(FL.busy||!selN())return;
+  const items=[];for(const t in FL.sel){if((S.own[t]|0)<FL.sel[t]){renderFl();return}for(let k=0;k<FL.sel[t];k++)items.push(+t)}
+  const from=fl();for(const t in FL.sel)S.own[t]-=FL.sel[t];
+  let total=from+items.length*PER;const won=[];while(total>=NEED){total-=NEED;const t=rnd();S.own[t]++;S.recent=S.recent||[];S.recent.unshift(t);S.recent=S.recent.slice(0,10);won.push(t)}
+  S.recent=(S.recent||[]).slice(0,10);S.fluff=total;S.fluffN=(S.fluffN|0)+items.length;save();try{hud()}catch(_){}
+  // build animation steps
+  FL.steps=[];let cur=from,add=items.length*PER,first=true;
+  const piece=(to,sprites)=>FL.steps.push({k:'fill',from:cur,to,dur:1.6+Math.min(1.2,Math.abs(to-cur)/60),sprites});
+  let left=add,dolls=items.slice();
+  while(won.length||left>0){
+   const room=NEED-cur;
+   if(won.length&&left>=room){piece(NEED,first?dolls.slice(0,10):[]);first=false;left-=room;FL.steps.push({k:'reveal',t:won.shift()});cur=0}
+   else{piece(cur+left,first?dolls.slice(0,10):[]);cur+=left;left=0;first=false}}
+  FL.sel={};FL.busy=true;FL.cur=null;FL.shown=from;try{SFX.pop()}catch(_){}renderFl()});
+ // ---------- 3D plush ----------
+ function build(){
+  const c='#fff1e8',P=msit({c,b:'#ffffff'});
+  [-1,1].forEach(s=>{P.push(MB(s*.62,1.12,0,.3,.38,c,.3),MB(s*.62,1.1,.1,.17,.24,'#f4b8c8',.2))});
+  P.push(MB(0,.52,.05,.9,.8,c));mfaceB(P,{});
+  // stitched seam on belly + patch
+  P.push(MS(-.3,-.15,.98,.3,-.15,.98,.04,'#d0a8b0'),MS(0,-.28,.98,0,-.02,.98,.04,'#d0a8b0'));
+  FL.parts=P}
+ try{build()}catch(e){}
+ const cvs=$('flc'),g=cvs.getContext('2d');
+ const R=i=>{const x=Math.sin(i*127.1)*43758.5453;return x-Math.floor(x)};
+ const ease=t=>t<0?0:t>1?1:t*t*(3-2*t);
+ function puffAt(x,y,r,a){g.globalAlpha=a==null?1:a;const s=m3spr('#ffffff');g.drawImage(s,x-r,y-r,r*2,r*2);g.globalAlpha=1}
+ function drawFluff(){
+  const W=640,H=420,tm=Date.now()/1000,dt=1/60;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);
+  let bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#3a2a6a');bg.addColorStop(1,'#7a4a8a');g.fillStyle=bg;g.fillRect(0,0,W,H);
+  for(let i=0;i<26;i++){g.fillStyle='rgba(255,255,255,'+(.25+.5*Math.max(0,Math.sin(tm*1.6+i)))+')';g.beginPath();g.arc(R(i)*W,R(i+9)*H*.6,1+R(i+4)*1.6,0,7);g.fill()}
+  g.fillStyle='rgba(255,200,240,.16)';g.beginPath();g.ellipse(W/2,H-52,200,38,0,0,7);g.fill();
+  // step machine
+  if(!FL.cur&&FL.steps.length){FL.cur=FL.steps.shift();FL.cur.t0=tm;if(FL.cur.k==='fill'){FL.cur.sprites.forEach((t,i)=>FL.spr.push({t,i,t0:tm+i*.08,done:false}))}else{FL.flash=1;try{SFX.lvl();tone(784,.2,'triangle',.1,.05);tone(1047,.3,'triangle',.1,.25)}catch(e){}for(let i=0;i<46;i++)FL.pf.push({x:W/2,y:200,vx:(Math.random()-.5)*9,vy:-Math.random()*8-1,l:1,r:6+Math.random()*10,e:Math.random()<.3?['✨','⭐','💖'][i%3]:null})}}
+  const S0=FL.cur;let f=FL.shown;
+  if(S0){const p=(tm-S0.t0)/(S0.k==='fill'?S0.dur:2.6);
+   if(S0.k==='fill'){f=S0.from+(S0.to-S0.from)*ease(p);FL.shown=f;if(Math.random()<.5&&p<.95)FL.pf.push({x:W/2+(Math.random()-.5)*50,y:70,vx:(Math.random()-.5)*2.4,vy:2+Math.random()*2,l:1,r:5+Math.random()*7,to:1});if(Math.floor(p*14)!==S0.tk){S0.tk=Math.floor(p*14);try{tone(300+p*500,.04,'triangle',.05)}catch(e){}}}
+   if(p>=1){if(S0.k==='fill')FL.shown=S0.to;else FL.shown=0;FL.cur=null;if(!FL.steps.length){FL.busy=false;FL.shown=fl();FL.spr.length=0;renderFl()}}}
+  else if(!FL.busy)FL.shown=fl();
+  const fr=Math.min(1,f/NEED);
+  // hopper machine
+  g.fillStyle='#8a78d8';g.strokeStyle='#5b3a52';g.lineWidth=4;g.beginPath();g.moveTo(W/2-95,18);g.lineTo(W/2+95,18);g.lineTo(W/2+34,72);g.lineTo(W/2-34,72);g.closePath();g.fill();g.stroke();g.fillStyle='#ffd23f';g.fillRect(W/2-34,70,68,10);g.strokeRect(W/2-34,70,68,10);
+  g.fillStyle='#fff';g.font='800 14px sans-serif';g.textAlign='center';g.fillText('🌀 เครื่องย่อยนุ่น',W/2,44);
+  // plush
+  FL.az+=.012;const C=m3cam(Math.sin(FL.az)*.55,.2,7.6,560,W/2,H*.64,[0,.1,0]);
+  const sc=.52+.48*ease(fr),bob=Math.sin(tm*2)*.03*(1+fr),pop=FL.cur&&FL.cur.k==='reveal'?1+Math.sin(Math.min(1,(tm-FL.cur.t0)/.5)*Math.PI)*.2:1;
+  // fluff pile
+  const np=Math.floor(fr*26);for(let i=0;i<np;i++){const a=i*2.4,r=1.3+R(i)*.7,q=m3proj(C,Math.cos(a)*r*sc*1.1,-1.15*sc,Math.sin(a)*r*.7*sc);puffAt(q.x,q.y+4,(.18+R(i+3)*.14)*q.s*sc*1.2,.9)}
+  m3drawPlush(g,C,{parts:FL.parts,x:0,y:bob,z:0,yaw:0,sc:sc*pop*(.88+.12*fr),tl:(1-fr)*.08*Math.sin(tm*1.5),tax:0,taz:1});
+  // gauge
+  g.fillStyle='rgba(0,0,0,.4)';g.beginPath();g.roundRect?g.roundRect(150,H-34,340,18,9):g.rect(150,H-34,340,18);g.fill();g.fillStyle='#ffc8e8';g.beginPath();g.roundRect?g.roundRect(150,H-34,Math.max(6,340*fr),18,9):g.rect(150,H-34,Math.max(6,340*fr),18);g.fill();g.fillStyle='#fff';g.font='800 13px sans-serif';g.textAlign='center';g.fillText('🧶 '+Math.floor(f)+' / '+NEED,W/2,H-21);
+  // falling doll sprites into the hopper
+  FL.spr.forEach(s=>{const k=(tm-s.t0)/.9;if(k<0||k>1)return;const x=W/2+(s.i%2?1:-1)*(150-k*140),y=-10+k*100+Math.sin(k*3)*12,im=imgs[s.t];if(im&&im.complete){g.globalAlpha=1-Math.max(0,k-.75)*4;g.drawImage(im,x-24*(1-k*.5),y-26*(1-k*.5),48*(1-k*.5),52*(1-k*.5));g.globalAlpha=1}});
+  // particles
+  for(let i=FL.pf.length-1;i>=0;i--){const q=FL.pf[i];q.x+=q.vx;q.y+=q.vy;if(q.to){q.vy+=.05;if(q.y>260)q.l-=.08}else q.vy+=.28;q.l-=.012;if(q.l<=0){FL.pf.splice(i,1);continue}if(q.e){g.globalAlpha=Math.min(1,q.l);g.font='16px sans-serif';g.textAlign='center';g.fillText(q.e,q.x,q.y);g.globalAlpha=1}else puffAt(q.x,q.y,q.r,Math.min(1,q.l))}
+  // reveal
+  if(S0&&S0.k==='reveal'){const p=Math.min(1,(tm-S0.t0)/2.6),k=ease(Math.min(1,p*3)),im=imgs[S0.t],q=T[S0.t];
+   g.fillStyle='rgba(20,8,50,'+.55*Math.min(1,p*4)+')';g.fillRect(0,0,W,H);
+   g.save();g.globalCompositeOperation='lighter';const gr=g.createRadialGradient(W/2,210,10,W/2,210,200);gr.addColorStop(0,'rgba(255,240,180,.8)');gr.addColorStop(1,'rgba(255,240,180,0)');g.fillStyle=gr;g.fillRect(0,0,W,H);g.restore();
+   if(im&&im.complete){const h=250*k;g.drawImage(im,W/2-h*.454,230-h*.55+Math.sin(tm*3)*4,h*.909,h)}
+   g.textAlign='center';g.font='800 28px Sarabun,sans-serif';g.lineWidth=6;g.strokeStyle='#5b3a52';g.fillStyle='#fff';g.strokeText('ได้ '+q.n+'!',W/2,40);g.fillText('ได้ '+q.n+'!',W/2,40);g.font='800 26px sans-serif';g.fillStyle='#ffd23f';const ss='★'.repeat(STR(q));g.strokeText(ss,W/2,74);g.fillText(ss,W/2,74)}
+  if(FL.flash>0){g.fillStyle='rgba(255,255,255,'+FL.flash+')';g.fillRect(0,0,W,H);FL.flash=Math.max(0,FL.flash-.04)}
+  if(FL.busy&&Math.random()<.2)renderFl()}
+ {const _dm=drawMerge;drawMerge=function(){if(FL.tab==='fluff'){drawFluff();return}return _dm.apply(this,arguments)}}
+ setTimeout(applyTab,0);
+})();
+
 // ===== world-entry transitions: 0 ดินแดนฝัน=เมฆเปิด, 1 กรุงเทพ=BTS ขับผ่าน, 3 บ้านผี=เมฆครึ้ม+ฟ้าแลบ, 4 เมืองขนม=ขนมเต็มจอ =====
 (function(){
  const cvs=document.createElement('canvas');cvs.id='wtov';cvs.style.cssText='position:fixed;z-index:3000;display:none;touch-action:none;border-radius:22px';document.body.appendChild(cvs);
