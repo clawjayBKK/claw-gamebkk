@@ -8932,6 +8932,100 @@ window.SPART={"f1": {"front": "data:image/webp;base64,UklGRrqGAABXRUJQVlA4WAoAAA
  sum();
 }
 
+// ผู้ติดตามตั้งแต่ 1,000,000 ขึ้นไป: ถ้าไม่อยู่ที่ตู้คีบ ลดวินาทีละ 50 (ไม่ต่ำกว่า 1,000,000) ไม่มีแจ้งเตือน
+{
+ let last=Date.now(),sv=0;
+ setInterval(()=>{try{
+  const n=Date.now(),dt=Math.min(5,Math.max(0,(n-last)/1000));last=n;
+  if(typeof sc==='undefined'||sc==='claw'||!(S.fans>1e6))return;
+  S.fans=Math.max(1e6,S.fans-50*dt);
+  if(++sv>=10){sv=0;save()}
+  if(sc==='lobby'&&typeof lobbyStats==='function')lobbyStats();
+ }catch(e){}},1000);
+}
+
+// ---------- ไลฟ์เรียลไทม์ (ออก/พับจอ/ปิดเกมก็นับต่อ) + สรุปรายได้ตอนจบไลฟ์ ----------
+{
+ let cu=0;
+ const css=document.createElement('style');css.textContent=`
+#lsOv{position:fixed;inset:0;z-index:3200;display:none;align-items:center;justify-content:center;background:rgba(15,8,35,.8);padding:14px}
+#lsOv.on{display:flex}
+#lsCard{width:100%;max-width:380px;max-height:92vh;overflow:auto;border-radius:22px;background:linear-gradient(#3a2377,#1b1040);border:3px solid #ffd24a;box-shadow:0 12px 40px #000a;color:#fff;padding:16px 14px 14px;text-align:center;font-family:inherit}
+#lsCard h3{margin:0 0 2px;font-size:20px;color:#ffd24a}
+#lsCard .sb{font-size:12px;color:#d9c9ff;margin-bottom:8px}
+#lsCard .big{font-size:34px;font-weight:900;color:#ffe27a;line-height:1.1}
+#lsCard .big small{display:block;font-size:12px;color:#d9c9ff;font-weight:700}
+#lsCard .gr{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+#lsCard .gr div{background:#ffffff14;border-radius:12px;padding:7px 4px;font-size:12px;color:#d9c9ff}
+#lsCard .gr b{display:block;font-size:16px;color:#fff;margin-top:1px}
+#lsCard .sh{display:flex;gap:4px;justify-content:center;margin:6px 0}
+#lsCard .sh img{width:40px;height:40px;object-fit:contain;background:#ffffff18;border-radius:10px}
+#lsCard button{width:100%;border:0;border-radius:16px;padding:11px;margin-top:6px;font:inherit;font-size:16px;font-weight:900;color:#fff;background:linear-gradient(#ff9fd0,#d9559f);box-shadow:0 4px 0 #7a1f55}`;
+ document.head.appendChild(css);
+ const ov=document.createElement('div');ov.id='lsOv';ov.innerHTML='<div id="lsCard"></div>';document.body.appendChild(ov);
+ ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('#lsOk'))ov.classList.remove('on')});
+ const fm=n=>Math.round(n).toLocaleString();
+ const dur=s=>{s=Math.max(0,Math.round(s));const h=s/3600|0,m=(s%3600)/60|0,x=s%60;return (h?h+' ชม. ':'')+m+' นาที '+x+' วิ'};
+ // นับออเดอร์ใหญ่ / โบนัสจากข้อความแชทพิเศษ
+ const _ca=chatAdd;chatAdd=function(n,m,h){try{const L=S.live;if(L&&L.on&&h&&typeof m==='string'){const mm=m.match(/\+(\d+)🪙/);if(mm){if(/ออเดอร์ใหญ่/.test(m)){L.bo=(L.bo|0)+1;L.bs=(L.bs|0)+ +mm[1]}else if(/โชคดี/.test(m)){L.lk=(L.lk|0)+1;L.ls=(L.ls|0)+ +mm[1]}}}}catch(e){}if(cu)return;return _ca.apply(this,arguments)};
+ const _st=startLive;startLive=function(){const w=S.live.on,r=_st.apply(this,arguments);try{const L=S.live;if(!w&&L.on){L.lt=Date.now();L.g0=S.gems;L.pk=0;L.vs=0;L.vn=0;L.bo=0;L.bs=0;L.lk=0;L.ls=0;L.pm=0;L.t0=Date.now()}}catch(e){}return r};
+ // โปรโมต: นับครั้ง
+ try{$('promoBtn').addEventListener('click',()=>{try{if(S.live.on)S.live.pm=(S.live.pm|0)+1}catch(e){}},true)}catch(e){}
+ // catch-up
+ const SFXK=['lvl','coin','sell','ok','pop','bad'];
+ function catchUp(n){
+  const L=S.live,sv={};cu=1;
+  const _h=hud,_r=renderLive,_s=save;hud=function(){};renderLive=function(){};save=function(){};
+  SFXK.forEach(k=>{if(SFX[k]){sv[k]=SFX[k];SFX[k]=function(){}}});
+  try{for(let i=0;i<n&&L.on;i++){_lt0();if(L.on){L.pk=Math.max(L.pk|0,LV.view|0);L.vs=(L.vs||0)+(LV.view|0);L.vn=(L.vn|0)+1}}}catch(e){console.error(e)}
+  hud=_h;renderLive=_r;save=_s;SFXK.forEach(k=>{if(sv[k])SFX[k]=sv[k]});cu=0;
+  try{save();hud();renderLive()}catch(e){}
+ }
+ let _lt0=liveTick0;
+ const _core=liveTick0;
+ liveTick0=function(){
+  const L=S.live;
+  if(L&&L.on&&!cu){
+   const now=Date.now(),gap=Math.floor((now-(L.lt||now))/1000)-1;
+   L.lt=now;
+   if(gap>=2){_lt0=_core;catchUp(Math.min(gap,LIVE_MAX))}
+  }
+  const r=_core.apply(this,arguments);
+  try{if(S.live.on){const L2=S.live;L2.pk=Math.max(L2.pk|0,LV.view|0);L2.vs=(L2.vs||0)+(LV.view|0);L2.vn=(L2.vn|0)+1}}catch(e){}
+  return r};
+ _lt0=_core;
+ // กลับมาที่แอป/เปิดเกมใหม่ → นับย้อนทันที
+ document.addEventListener('visibilitychange',()=>{try{if(document.hidden){if(S.live.on){S.live.lt=Date.now();save()}}else if(S.live.on)liveTick0()}catch(e){}});
+ addEventListener('pagehide',()=>{try{if(S.live.on){S.live.lt=Date.now();save()}}catch(e){}});
+ // สรุปตอนจบไลฟ์
+ const _end=endLive;
+ endLive=function(m){
+  const L=S.live,was=L.on;
+  if(!was)return _end.apply(this,arguments);
+  const snap={t:L.t||0,total:L.total||0,f0:L.f0,g0:L.g0,pk:L.pk|0,avg:L.vn?L.vs/L.vn:0,bo:L.bo|0,bs:L.bs|0,lk:L.lk|0,ls:L.ls|0,pm:L.pm|0,best:L.best|0,sl:L.slots.slice(0,slotCount()).filter(slOk).map(x=>IMG[slType(x)])};
+  const r=_end.apply(this,arguments);
+  try{
+   const df=S.fans-(snap.f0==null?S.fans:snap.f0),dg=snap.g0==null?0:S.gems-snap.g0,rate=snap.t?snap.total/snap.t:0,newBest=snap.total>0&&snap.total>=(S.live.best|0)&&snap.total===snap.best;
+   $('lsCard').innerHTML='<h3>📊 สรุปไลฟ์สด</h3><div class="sb">'+(m||'จบไลฟ์แล้ว')+'</div>'+
+    '<div class="big">+'+fm(snap.total)+' 🪙<small>รายได้รวมรอบนี้'+(newBest?' · 🏆 สถิติใหม่!':'')+'</small></div>'+
+    '<div class="gr">'+
+    '<div>⏱ ระยะเวลา<b>'+dur(snap.t)+'</b></div>'+
+    '<div>💰 เฉลี่ย<b>'+rate.toFixed(1)+' 🪙/วิ</b></div>'+
+    '<div>👥 ผู้ติดตามเพิ่ม<b>'+(df>=0?'+':'')+fm(df)+'</b></div>'+
+    '<div>👁 คนดูสูงสุด<b>'+fm(snap.pk)+'</b></div>'+
+    '<div>👀 คนดูเฉลี่ย<b>'+fm(snap.avg)+'</b></div>'+
+    '<div>🧾 ออเดอร์ใหญ่<b>'+snap.bo+' ครั้ง'+(snap.bo?' (+'+fm(snap.bs)+')':'')+'</b></div>'+
+    (snap.lk?'<div>🍀 โชคดีจ่ายพิเศษ<b>'+snap.lk+' ครั้ง (+'+fm(snap.ls)+')</b></div>':'')+
+    (dg>0?'<div>💎 เพชรจากแฟนคลับ<b>+'+dg+'</b></div>':'')+
+    '<div>📣 โปรโมต<b>'+snap.pm+' ครั้ง</b></div>'+
+    '<div>🏆 สถิติสูงสุด<b>'+fm(S.live.best|0)+' 🪙</b></div></div>'+
+    '<div class="sb">ตุ๊กตาบนชั้น ('+snap.sl.length+' ตัว)</div><div class="sh">'+snap.sl.map(u=>'<img src="'+u+'">').join('')+'</div>'+
+    '<button id="lsOk">เยี่ยมเลย! ✨</button>';
+   ov.classList.add('on');
+  }catch(e){console.error(e)}
+  return r};
+}
+
 // ---- starter doll cabinet + furniture locks ----
 (function(){
 const st0=document.createElement('style');st0.textContent='#rpanel .ic{position:relative}#rpanel .lkb{position:absolute;top:2px;right:2px;font-size:13px;background:rgba(0,0,0,.35);border-radius:8px;padding:0 4px;line-height:18px;z-index:2}#rpanel .ic .lvt{position:absolute;left:2px;top:2px;font-size:10px;background:#ff5f7a;color:#fff;border-radius:8px;padding:0 5px;font-weight:700}#rpanel .sk{width:100%;aspect-ratio:1;border-radius:12px;border:2px dashed #6b4bb0;background:#2a2272;color:#cfc4ff;font-size:22px;padding:2px}#rpanel .sk.on{border:2px solid #ffd23f}#rpanel .sk img{height:100%;max-height:44px;display:block;margin:auto}';document.head.appendChild(st0);
