@@ -1340,7 +1340,7 @@ const SELL=[1,1,2,3,4,6,10,14,22,38];
 const PETD=[{v:'golden',n:'โกลเด้นทอง',p:3000},{v:'cream',n:'ครีมนุ่มนิ่ม',p:3500},{v:'choco',n:'ช็อกโกแลต',p:3500},{v:'sakura',n:'ซากุระชมพู',p:5000},{v:'tabby',n:'แมวส้มจอมซน',p:4500}];
 const ld=s=>{const i=new Image();i.src=s;return i};
 const imgs=IMG.map(ld);
-let S={coins:30,xp:0,lv:1,own:Array(T.length).fill(0),it:[1,1,0],room:[],snd:true};
+let S={coins:30,xp:0,lv:1,own:Array(T.length).fill(0),it:[0,0,0],itMig:1,room:[],snd:true};
 const ACC=(()=>{try{return localStorage.getItem('clawcur')||''}catch(e){return ''}})(),SKEY=ACC?'clawgame2_u_'+ACC:'clawgame2';
 try{const s=JSON.parse(localStorage.getItem(SKEY));if(s&&s.own&&s.own.length>=10)S=s}catch(e){}window.__ts0=+S.ts||0;
 S.recent=S.recent||[];S.sv=S.sv||[];while(S.own.length<T.length)S.own.push(0);
@@ -1435,6 +1435,17 @@ const SH=[
   frame:['#c8a0ff','#8a58e0'],side:['#a078e0','#5a38a0'],wall:['#f6eaff','#dcc4ff'],fl:['#faf0ff','#e4d0ff'],glow:'#fff0ff',acc:'#7affc8',pos:[232,106]},
  {map:4,n:'วังเค้กราชินีน้ำตาล',e:'🎂',sign:'SUGAR QUEEN PALACE',d:'วังขนมสุดท้าย! ตุ๊กตา 7-8 ดาวสุดยอดโผล่ที่นี่เท่านั้น',req:60,cost:50,bias:3.5,xpm:9.5,
   frame:['#ffd84a','#e09a20'],side:['#f0b030','#a86a10'],wall:['#fff6d0','#ffe08a'],fl:['#fffae0','#ffe8a8'],glow:'#fffbe0',acc:'#ff5a8a',pos:[284,166]},
+
+  {map:5,n:'ฐานดวงจันทร์ใจดี',e:'🌙',sign:'MOON BASE',d:'ฐานบนดวงจันทร์ ตุ๊กตาอวกาศ 5-6 ดาวโผล่บ่อย มีเฉพาะที่แผนที่อวกาศ!',req:64,cost:55,bias:2.0,xpm:10.5,
+   frame:['#fff0a8','#e0b84a'],side:['#c8b87a','#8a7a3a'],wall:['#f4f0e0','#d8d0b0'],fl:['#e8e4d0','#bfb690'],glow:'#fffbe0',acc:'#ffd23f',pos:[44,172]},
+  {map:5,n:'โคโลนีดาวอังคาร',e:'🔴',sign:'MARS COLONY',d:'เมืองใต้โดมบนดาวอังคาร ตุ๊กตา 6-7 ดาวเริ่มโผล่',req:68,cost:60,bias:2.4,xpm:11.5,
+   frame:['#ff9a7a','#c8503a'],side:['#c8684a','#7a2a1a'],wall:['#ffc8a8','#f09070'],fl:['#e8a888','#b8684a'],glow:'#ffe0d0',acc:'#7affc8',pos:[104,110]},
+  {map:5,n:'ห่วงดาวเสาร์',e:'🪐',sign:'SATURN RINGS',d:'ร้านบนวงแหวนดาวเสาร์ ตุ๊กตา 7-8 ดาวหายากโผล่มากขึ้น',req:72,cost:66,bias:2.8,xpm:12.8,
+   frame:['#ffe0a0','#d8a040'],side:['#c8a860','#7a5a20'],wall:['#fff0d0','#ffd890'],fl:['#ffe8b8','#e8c070'],glow:'#fff8e0',acc:'#ff7ad8',pos:[170,166]},
+  {map:5,n:'คาเฟ่เนบิวลา',e:'🌌',sign:'NEBULA CAFE',d:'คาเฟ่กลางกลุ่มก๊าซสีรุ้ง 8-9 ดาวโผล่บ่อยมาก',req:76,cost:72,bias:3.2,xpm:14.0,
+   frame:['#d8a0ff','#7a4ad8'],side:['#6a3ab8','#2a1470'],wall:['#3a1a78','#1a0a48'],fl:['#4a2a98','#220e60'],glow:'#e8c8ff',acc:'#ff8ac8',pos:[236,106]},
+  {map:5,n:'ใจกลางกาแล็กซี',e:'✨',sign:'GALAXY CORE',d:'จุดสิ้นสุดของจักรวาล! ตุ๊กตา 9-10 ดาวสุดยอดโผล่ที่นี่',req:80,cost:80,bias:3.8,xpm:16.0,
+   frame:['#ffe27a','#e08a2a'],side:['#a8601a','#4a2408'],wall:['#2a1a5a','#0e0830'],fl:['#4a2a7a','#1a0c40'],glow:'#fff0b0',acc:'#7ac8ff',pos:[282,52]}
 ];
 
 // ===== ฐานข้อมูลออนไลน์สำรอง (Firebase Firestore ผ่าน REST) =====
@@ -7880,10 +7891,11 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
   let h='<h3>🛠️ เมนูแอดมิน (เทส)<button class="pk" id="admX" style="background:#8a80b8;padding:6px 12px">ปิด</button></h3>';
   h+='<div class="tb">'+['💰 เงิน','⭐ เลเวล','🧸 ตุ๊กตา','🌗 เวลา'].map((t,i)=>'<button class="pk'+(tab===i?' on':'')+'" data-at="'+i+'">'+t+'</button>').join('')+'</div>';
   if(tab===0){
-   h+='<div class="sec">🪙 เหรียญตอนนี้: <b>'+fmt(S.coins)+'</b><br>💎 เพชรตอนนี้: <b>'+fmt(S.gems)+'</b></div>';
+   h+='<div class="sec">🪙 เหรียญตอนนี้: <b>'+fmt(S.coins)+'</b><br>💎 เพชรตอนนี้: <b>'+fmt(S.gems)+'</b><br>👥 ผู้ติดตามตอนนี้: <b>'+fmt(S.fans||0)+'</b></div>';
    h+='<div class="sec">จำนวน<input id="admN" type="number" inputmode="numeric" value="1000000">'+
     '<div class="rw"><button class="pk" data-am="c+">➕ เหรียญ</button><button class="pk" data-am="c-" style="background:#d9534f">➖ เหรียญ</button><button class="pk" data-am="c=" style="background:#5b8dd9">ตั้งเหรียญ =</button></div>'+
     '<div class="rw" style="margin-top:5px"><button class="pk" data-am="g+">➕ เพชร</button><button class="pk" data-am="g-" style="background:#d9534f">➖ เพชร</button><button class="pk" data-am="g=" style="background:#5b8dd9">ตั้งเพชร =</button></div>'+
+    '<div class="rw" style="margin-top:5px"><button class="pk" data-am="f+">➕ ผู้ติดตาม</button><button class="pk" data-am="f-" style="background:#d9534f">➖ ผู้ติดตาม</button><button class="pk" data-am="f=" style="background:#5b8dd9">ตั้งผู้ติดตาม =</button></div>'+
     '<div class="rw" style="margin-top:8px">'+[1e3,1e5,1e7,1e8].map(v=>'<button class="pk" data-qn="'+v+'" style="background:#3a3358">'+fmt(v)+'</button>').join('')+'</div></div>'}
   else if(tab===1){
    h+='<div class="sec">เลเวลตอนนี้: <b>'+(S.lv|0)+'</b> · XP <b>'+fmt(S.xp)+'</b> / '+fmt(XPN())+'</div>';
@@ -7906,8 +7918,8 @@ h2,.ctitle,.cname{text-shadow:0 2px 0 rgba(10,4,30,.9),0 0 6px rgba(10,4,30,.5)}
   if(t.id==='admX'){O.style.display='none';return}
   if(D.at!=null){tab=+D.at;msg='';try{SFX.pop()}catch(_){}render();return}
   if(D.qn){const i=W.querySelector('#admN');if(i)i.value=D.qn;return}
-  if(D.am){const v=Math.max(0,Math.floor(+W.querySelector('#admN').value||0)),k=D.am[0]==='c'?'coins':'gems',op=D.am[1];
-   S[k]=op==='+'?(S[k]||0)+v:op==='-'?Math.max(0,(S[k]||0)-v):v;ok((k==='coins'?'🪙 ':'💎 ')+'ตอนนี้ '+fmt(S[k]));return}
+  if(D.am){const v=Math.max(0,Math.floor(+W.querySelector('#admN').value||0)),k=D.am[0]==='c'?'coins':D.am[0]==='f'?'fans':'gems',op=D.am[1];
+   S[k]=op==='+'?(S[k]||0)+v:op==='-'?Math.max(0,(S[k]||0)-v):v;try{hud();if(typeof renderLive==='function')renderLive()}catch(_){}ok((k==='coins'?'🪙 ':k==='fans'?'👥 ':'💎 ')+'ตอนนี้ '+fmt(S[k]));return}
   if(D.lv){if(D.lv==='xp'){S.xp=Math.max(0,XPN()-1);ok('XP เกือบเต็มแล้ว ได้ XP อีกนิดจะอัปเลเวล');return}
    let n=D.lv==='='?Math.floor(+W.querySelector('#admL').value||1):(S.lv|0)+(+D.lv);n=Math.max(1,Math.min(999,n));S.lv=n;S.xp=0;ok('⭐ ตั้งเลเวลเป็น '+n+' แล้ว');return}
   if(D.qt){qty=+D.qt;render();return}
@@ -8343,19 +8355,32 @@ window.SPART={"f1": {"front": "data:image/webp;base64,UklGRrqGAABXRUJQVlA4WAoAAA
  $('pcare').addEventListener('click',e=>{const b=e.target.closest('[data-spv]');if(b)openV(b.dataset.spv)});
 })();
 
-// ไอเทมช่วย: ใช้แล้วทิ้ง เฉพาะร้านที่ซื้อ ราคา 3% ของเหรียญที่ถือ
+// ไอเทมช่วย: ใช้แล้วทิ้ง เฉพาะร้านที่ซื้อ ราคา 3% ของเหรียญที่ถือ · ไม่ได้ใช้แล้วออกจากร้าน คืนเงิน 50%
 {
+ const lastP=[0,0,0];
+ function track(){try{
+  S.itPaid=S.itPaid||[0,0,0];S.itSeen=S.itSeen||[0,0,0];
+  for(let i=0;i<3;i++){const n=S.it[i]|0,s=S.itSeen[i]|0;
+   if(n>s)S.itPaid[i]=(S.itPaid[i]||0)+(n-s)*(lastP[i]||IT[i].p);
+   else if(n<s)S.itPaid[i]=s>0?(S.itPaid[i]||0)*n/s:0;
+   S.itSeen[i]=n}}catch(e){}}
+ function refund(){try{
+  track();const pd=S.itPaid||[0,0,0],tot=pd[0]+pd[1]+pd[2],has=(S.it[0]|0)+(S.it[1]|0)+(S.it[2]|0);
+  if(has>0&&tot>0){const r=Math.floor(tot*0.5);if(r>0){S.coins+=r;try{toast('mmsg','↩️ คืนเงินไอเทมที่ไม่ได้ใช้ 50% (+'+r.toLocaleString()+' 🪙)');SFX.coin()}catch(e){}}}
+ }catch(e){}
+  S.it=[0,0,0];S.itPaid=[0,0,0];S.itSeen=[0,0,0]}
  function norm(){try{
   if(!S.it)S.it=[0,0,0];
   if(!S.itMig){S.itMig=1;const old=(S.it[0]|0)+(S.it[1]|0)+(S.it[2]|0);if(old>0){S.coins+=old*2000;S.it=[0,0,0]}}
-  if(S.itShop!==S.shop){S.it=[0,0,0];S.itShop=S.shop}
+  track();
+  if(S.itShop!==S.shop){refund();S.itShop=S.shop;try{save()}catch(e){}}
   const p=Math.max(100,Math.round((S.coins||0)*0.03));
-  IT.forEach(x=>{x.p=p;x.d=x.d.replace(/ · .*$/,'')+' · ใช้ครั้งเดียว เฉพาะร้านนี้'});
+  IT.forEach(x=>{x.p=p;x.d=x.d.replace(/ · .*$/,'')+' · ใช้ครั้งเดียว เฉพาะร้านนี้ · ไม่ใช้คืน 50%'});
  }catch(e){}}
  IT.forEach(x=>{x.d=x.d.replace(/ · .*$/,'')});
- const _go=go;go=function(s){norm();const r=_go.apply(this,arguments);try{if(typeof renderShopItems==='function')0}catch(e){}return r};
+ const _go=go;go=function(s){const prev=sc;norm();const r=_go.apply(this,arguments);try{if(prev==='claw'&&s!=='claw'){refund();save();hud()}}catch(e){}return r};
  const _hud=hud;hud=function(){norm();return _hud.apply(this,arguments)};
- IT.forEach((x,i)=>{const b=$('s'+i);['pointerdown','click'].forEach(ev=>b.addEventListener(ev,norm,true))});
+ IT.forEach((x,i)=>{const b=$('s'+i);['pointerdown','click'].forEach(ev=>b.addEventListener(ev,()=>{norm();lastP[i]=IT[i].p},true))});
  norm();
 }
 // ค่าคีบ = 0.3% ของเหรียญที่ถือ (ขั้นต่ำเท่าค่าเล่นเดิมของร้าน) ทุกร้าน
@@ -8584,19 +8609,8 @@ window.SPACE0=b0;window.SPACEN=B.length;
 (function(){
  WN.push('🪐 อวกาศ');
  const W5=5;
- const mkS=(o)=>Object.assign({map:W5,xpm:1},o);
- SH.push(
-  mkS({n:'ฐานดวงจันทร์ใจดี',e:'🌙',sign:'MOON BASE',d:'ฐานบนดวงจันทร์ ตุ๊กตาอวกาศ 5-6 ดาวโผล่บ่อย มีเฉพาะที่แผนที่อวกาศ!',req:64,cost:55,bias:2.0,xpm:10.5,
-   frame:['#fff0a8','#e0b84a'],side:['#c8b87a','#8a7a3a'],wall:['#f4f0e0','#d8d0b0'],fl:['#e8e4d0','#bfb690'],glow:'#fffbe0',acc:'#ffd23f',pos:[44,172]}),
-  mkS({n:'โคโลนีดาวอังคาร',e:'🔴',sign:'MARS COLONY',d:'เมืองใต้โดมบนดาวอังคาร ตุ๊กตา 6-7 ดาวเริ่มโผล่',req:68,cost:60,bias:2.4,xpm:11.5,
-   frame:['#ff9a7a','#c8503a'],side:['#c8684a','#7a2a1a'],wall:['#ffc8a8','#f09070'],fl:['#e8a888','#b8684a'],glow:'#ffe0d0',acc:'#7affc8',pos:[104,110]}),
-  mkS({n:'ห่วงดาวเสาร์',e:'🪐',sign:'SATURN RINGS',d:'ร้านบนวงแหวนดาวเสาร์ ตุ๊กตา 7-8 ดาวหายากโผล่มากขึ้น',req:72,cost:66,bias:2.8,xpm:12.8,
-   frame:['#ffe0a0','#d8a040'],side:['#c8a860','#7a5a20'],wall:['#fff0d0','#ffd890'],fl:['#ffe8b8','#e8c070'],glow:'#fff8e0',acc:'#ff7ad8',pos:[170,166]}),
-  mkS({n:'คาเฟ่เนบิวลา',e:'🌌',sign:'NEBULA CAFE',d:'คาเฟ่กลางกลุ่มก๊าซสีรุ้ง 8-9 ดาวโผล่บ่อยมาก',req:76,cost:72,bias:3.2,xpm:14.0,
-   frame:['#d8a0ff','#7a4ad8'],side:['#6a3ab8','#2a1470'],wall:['#3a1a78','#1a0a48'],fl:['#4a2a98','#220e60'],glow:'#e8c8ff',acc:'#ff8ac8',pos:[236,106]}),
-  mkS({n:'ใจกลางกาแล็กซี',e:'✨',sign:'GALAXY CORE',d:'จุดสิ้นสุดของจักรวาล! ตุ๊กตา 9-10 ดาวสุดยอดโผล่ที่นี่',req:80,cost:80,bias:3.8,xpm:16.0,
-   frame:['#ffe27a','#e08a2a'],side:['#a8601a','#4a2408'],wall:['#2a1a5a','#0e0830'],fl:['#4a2a7a','#1a0c40'],glow:'#fff0b0',acc:'#7ac8ff',pos:[282,52]})
- );
+ if(SH.length<25)throw new Error('space shops missing');
+
  // ---------- drop weights: later shops favour higher stars ----------
  const BOOST=[1,1.3,1.7,2.2,2.8];
  {const _r=rnd;rnd=function(){
@@ -8807,6 +8821,114 @@ window.SPACE0=b0;window.SPACEN=B.length;
   if(document.querySelector('#clov.on,#bxov.on,#spFly[style*="block"]'))return;
   S[KEY]=1;save();build();ov.classList.add('on');try{SFX.ok()}catch(_){}clearInterval(iv)}catch(e){}},1500);
 })();
+
+// ---------- สมุดเลือกตุ๊กตาขึ้นชั้นไลฟ์ (binder 3D, แบ่งหน้า) ----------
+{
+ const css=document.createElement('style');css.textContent=`
+#lbk{position:fixed;inset:0;z-index:3000;display:none;background:radial-gradient(circle at 50% 30%,#3a2377,#150c33 75%);flex-direction:column;align-items:center;padding:8px 8px 10px;color:#fff;font-family:inherit;touch-action:pan-y}
+#lbk.on{display:flex}
+#lbk .lbh{width:100%;max-width:440px;display:flex;align-items:center;gap:6px;justify-content:space-between}
+#lbk .lbh b{font-size:15px}
+#lbk button{width:auto;height:auto;min-width:0;margin:0;line-height:1.2}
+#lbk .lbx{flex:none;border:0;border-radius:12px;padding:6px 12px;font:inherit;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(#ff7a8a,#d6334c);box-shadow:0 3px 0 #7a1226}
+#lbk .lbshelf{width:100%;max-width:440px;display:flex;gap:4px;margin:6px 0;min-height:44px}
+#lbk .lbshelf div{flex:1;height:44px;font-size:12px;border-radius:10px;background:#00000040;border:2px dashed #ffffff30;display:flex;align-items:center;justify-content:center;font-size:14px;position:relative;overflow:hidden}
+#lbk .lbshelf div.f{border:2px solid #3ddc84;background:#3ddc8422}
+#lbk .lbshelf img{width:100%;height:100%;object-fit:contain}
+#lbk .lbshelf div.lk{opacity:.5}
+#lbk .chips{width:100%;max-width:440px;display:flex;gap:4px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+#lbk .chips::-webkit-scrollbar{display:none}
+#lbk .chip{flex:none;height:28px;border:0;border-radius:14px;padding:5px 9px;font:inherit;font-size:12px;font-weight:700;color:#e8dcff;background:#ffffff1c;white-space:nowrap}
+#lbk .chip.on{background:linear-gradient(#ffd24a,#f09a1a);color:#3a2300;box-shadow:0 2px 0 #8a5200}
+#lbk .chip small{opacity:.75;margin-left:2px}
+#lbk .lbsum{width:100%;max-width:440px;font-size:12px;text-align:center;margin:4px 0;color:#d9c9ff}
+#lbk .lbsum b{color:#ffd24a}
+#lbk .book{flex:1;min-height:0;overflow:hidden;width:100%;max-width:440px;perspective:1100px;display:flex;align-items:center;justify-content:center;position:relative}
+#lbk .pg{width:100%;height:calc(100% - 4px);box-sizing:border-box;border-radius:8px 18px 18px 8px;background:linear-gradient(100deg,#6b3fd0 0,#6b3fd0 4%,#fff4d8 4.5%,#fffaf0 100%);border:3px solid #3a1f86;box-shadow:0 14px 28px #000a,inset 18px 0 22px -14px #0005;transform:rotateY(-6deg) rotateX(2deg);transform-origin:left center;padding:10px 10px 10px 22px;display:grid;gap:6px;position:relative}
+#lbk .pg::before{content:'';position:absolute;left:6px;top:8%;bottom:8%;width:8px;background:repeating-linear-gradient(#0000 0 14px,#c9c9d6 14px 24px,#0000 24px 34px);border-radius:4px;opacity:.9}
+#lbk .pg.fl{animation:lbflip .32s ease}
+#lbk .pg.flb{animation:lbflipb .32s ease}
+@keyframes lbflip{from{transform:rotateY(-70deg);opacity:.2}to{transform:rotateY(-6deg) rotateX(2deg);opacity:1}}
+@keyframes lbflipb{from{transform:rotateY(55deg);opacity:.2}to{transform:rotateY(-6deg) rotateX(2deg);opacity:1}}
+#lbk .cd{position:relative;border-radius:12px;background:#fff;border:3px solid #ddd;box-shadow:0 3px 0 #0003;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3px 2px;color:#3a2a55;min-height:0;overflow:hidden;cursor:pointer}
+#lbk .cd img{flex:1;min-height:0;max-width:88%;object-fit:contain}
+#lbk .cd .n{padding:0 2px;font-size:11px;font-weight:800;line-height:1.1;text-align:center;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#lbk .cd .m{font-size:10px;color:#6b5a8a;line-height:1.1}
+#lbk .cd .q{position:absolute;top:2px;right:3px;font-size:11px;font-weight:900;background:#3a1f86;color:#fff;border-radius:8px;padding:0 5px}
+#lbk .cd .s{position:absolute;top:2px;left:3px;font-size:13px}
+#lbk .cd.pk{border-color:#3ddc84;background:#e9fff2;box-shadow:0 0 0 2px #3ddc84,0 3px 0 #0003}
+#lbk .cd.pk::after{content:'✓';position:absolute;bottom:2px;right:3px;background:#3ddc84;color:#06361c;border-radius:50%;width:18px;height:18px;font-size:12px;font-weight:900;line-height:18px;text-align:center}
+#lbk .emp{grid-column:1/-1;align-self:center;text-align:center;color:#6b5a8a;font-size:13px}
+#lbk .nav{width:100%;max-width:440px;display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px}
+#lbk .nav button{flex:none;border:0;border-radius:14px;padding:9px 16px;font:inherit;font-size:14px;font-weight:800;color:#fff;background:linear-gradient(#8f6bff,#5a33c9);box-shadow:0 3px 0 #2a1470}
+#lbk .nav button:disabled{opacity:.35}
+#lbk .nav span{font-size:13px;font-weight:800}
+#lbOpen{width:100%;margin:6px 0;border:0;border-radius:16px;padding:12px;font:inherit;font-size:15px;font-weight:900;color:#fff;background:linear-gradient(#9b6bff,#5b2fd0);box-shadow:0 4px 0 #2a1470;text-align:center}
+#lbOpen small{display:block;font-weight:600;font-size:12px;opacity:.9;margin-top:2px}`;
+ document.head.appendChild(css);
+ const ov=document.createElement('div');ov.id='lbk';document.body.appendChild(ov);
+ const live=$('sc-live'),pickEl=$('lpick'),lh=[...live.querySelectorAll('.lh')].find(e=>/เลือกตุ๊กตาขึ้นชั้น/.test(e.textContent));
+ pickEl.style.display='none';if(lh)lh.style.display='none';
+ const ob=document.createElement('button');ob.id='lbOpen';pickEl.parentNode.insertBefore(ob,pickEl);
+ const SORTS=['รายได้','เลเวล','ดาว','จำนวน','ชื่อ'];
+ const F={cat:'all',st:'all',sort:0,page:0};
+ const CATS=[['all','ทั้งหมด',x=>1],['1','★1-2',x=>x.star<=2],['3','★3',x=>x.star==3],['4','★4',x=>x.star==4],['5','★5',x=>x.star==5],['6','★6-7',x=>x.star>=6&&x.star<=7],['8','★8+',x=>x.star>=8]];
+ function entries(){const a=[];
+  T.forEach((q,t)=>{if(S.own[t]>0)a.push({id:t,t,s:0,cnt:S.own[t],star:STR(q)})});
+  (S.sv||[]).forEach(o=>{if(T[o.t])a.push({id:-o.id,t:o.t,s:o.s,cnt:1,star:STR(T[o.t])})});
+  a.forEach(x=>{x.lv=Math.max(1,lvOf(x.t));x.inc=slotVal(x.id)*LK});return a}
+ const onShelf=id=>{const n=slotCount();return S.live.slots.slice(0,n).indexOf(id)}
+ function perPage(){const w=Math.min(innerWidth,440)-50,h=innerHeight-290;const cols=3,cw=w/cols;const rows=Math.max(2,Math.min(4,Math.floor(h/(cw*1.12))));return {cols,rows,n:cols*rows}}
+ function toggle(id){const at=onShelf(id);if(at>=0){S.live.slots[at]=null;SFX.pop()}else{let f=-1;for(let i=0;i<slotCount();i++)if(!slOk(S.live.slots[i])){f=i;break}
+   if(f<0){SFX.bad();flash('ชั้นเต็มแล้ว แตะตุ๊กตาที่มี ✓ เพื่อเอาออกก่อน');return}S.live.slots[f]=id;SFX.wear()}
+  save();hud();renderLive();draw()}
+ function flash(t){const e=ov.querySelector('.lbsum');if(e){e.textContent=t;e.style.color='#ff9aa8'}}
+ let dir='';
+ function draw(){
+  const all=entries(),n=slotCount(),pp=perPage();
+  const cats=CATS.map(c=>[c,all.filter(c[2]).length]);
+  const stc=[['all','ทั้งหมด',x=>1],['0','ไม่มีสถานะ',x=>!x.s]].concat(ST.slice(1).map((s,i)=>[''+(i+1),s.e+' '+s.n,x=>x.s==i+1]));
+  const base=all.filter(CATS.find(c=>c[0]==F.cat)[2]);
+  const fl=base.filter(stc.find(c=>c[0]==F.st)[2]);
+  const sf=[x=>-x.inc,x=>-x.lv,x=>-x.star,x=>-x.cnt,x=>T[x.t].n];
+  fl.sort((a,b)=>{const A=sf[F.sort](a),B=sf[F.sort](b);return typeof A=='string'?A.localeCompare(B,'th'):A-B||a.t-b.t});
+  const pages=Math.max(1,Math.ceil(fl.length/pp.n));if(F.page>=pages)F.page=pages-1;if(F.page<0)F.page=0;
+  const cur=fl.slice(F.page*pp.n,F.page*pp.n+pp.n);
+  const used=S.live.slots.slice(0,n).filter(slOk).length;
+  let sh='';for(let i=0;i<6;i++){if(i>=n){sh+='<div class="lk">🔒</div>';continue}const x=S.live.slots[i];sh+=slOk(x)?'<div class="f" data-rm="'+x+'"><img src="'+IMG[slType(x)]+'"></div>':'<div style="opacity:.5">+</div>'}
+  const totalDolls=all.reduce((a,x)=>a+x.cnt,0);
+  ov.innerHTML='<div class="lbh"><b>📖 สมุดตุ๊กตา</b><button class="lbx" id="lbClose">✕ ปิด</button></div>'+
+  '<div class="lbshelf">'+sh+'</div>'+
+  '<div class="chips">'+cats.map(([c,k])=>'<button class="chip'+(F.cat==c[0]?' on':'')+'" data-c="'+c[0]+'">'+c[1]+'<small>'+k+'</small></button>').join('')+'</div>'+
+  '<div class="chips" style="margin-top:3px">'+stc.map(c=>'<button class="chip'+(F.st==c[0]?' on':'')+'" data-s="'+c[0]+'">'+c[1]+'<small>'+base.filter(c[2]).length+'</small></button>').join('')+'<button class="chip" data-sort="1" style="background:#5a33c9">↕ '+SORTS[F.sort]+'</button></div>'+
+  '<div class="lbsum">บนชั้น <b>'+used+'/'+n+'</b> ช่อง · แสดง <b>'+fl.length+'</b> แบบ จากที่มี <b>'+all.length+'</b> แบบ ('+totalDolls+' ตัว)</div>'+
+  '<div class="book"><div class="pg '+dir+'" style="grid-template-columns:repeat('+pp.cols+',minmax(0,1fr));grid-template-rows:repeat('+pp.rows+',minmax(0,1fr))">'+
+  (cur.length?cur.map(x=>{const q=T[x.t],on=onShelf(x.id)>=0;return '<div class="cd'+(on?' pk':'')+'" data-id="'+x.id+'" style="border-color:'+(on?'#3ddc84':q.c)+'">'+(x.s?'<span class="s" title="'+ST[x.s].n+'">'+ST[x.s].e+'</span>':'')+(x.cnt>1?'<span class="q">×'+x.cnt+'</span>':'')+'<img src="'+IMG[x.t]+'"><span class="n">'+q.n+'</span><span class="m">'+'★'.repeat(Math.min(x.star,5))+(x.star>5?'+'+(x.star-5):'')+' · Lv'+x.lv+'</span><span class="m">+'+x.inc.toFixed(1)+'/วิ</span></div>'}).join(''):'<div class="emp">ไม่มีตุ๊กตาในหมวดนี้ 🧸<br>ลองเปลี่ยนตัวกรอง หรือไปคีบเพิ่มนะ</div>')+
+  '</div></div>'+
+  '<div class="nav"><button id="lbPrev"'+(F.page<=0?' disabled':'')+'>◀ ก่อนหน้า</button><span>หน้า '+(F.page+1)+' / '+pages+'</span><button id="lbNext"'+(F.page>=pages-1?' disabled':'')+'>ถัดไป ▶</button></div>';
+  dir='';
+ }
+ function open(){F.page=0;ov.classList.add('on');dir='fl';draw();SFX.pop()}
+ function close(){ov.classList.remove('on');renderLive();sum()}
+ function go2(d){const o=F.page;F.page+=d;dir=d>0?'fl':'flb';draw();if(F.page!==o)SFX.pop()}
+ ov.addEventListener('click',e=>{const t=e.target;let b;
+  if(t.closest('#lbClose')){close();return}
+  if(b=t.closest('#lbPrev')){if(!b.disabled)go2(-1);return}
+  if(b=t.closest('#lbNext')){if(!b.disabled)go2(1);return}
+  if(b=t.closest('[data-c]')){F.cat=b.dataset.c;F.page=0;dir='fl';draw();return}
+  if(b=t.closest('[data-s]')){F.st=b.dataset.s;F.page=0;dir='fl';draw();return}
+  if(t.closest('[data-sort]')){F.sort=(F.sort+1)%SORTS.length;F.page=0;draw();return}
+  if(b=t.closest('[data-rm]')){toggle(+b.dataset.rm);return}
+  if(b=t.closest('[data-id]')){toggle(+b.dataset.id)}});
+ let sx=null;ov.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
+ ov.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>60&&e.target.closest('.book'))go2(dx<0?1:-1)},{passive:true});
+ addEventListener('resize',()=>{if(ov.classList.contains('on'))draw()});
+ ob.addEventListener('click',()=>{ac();open()});
+ function sum(){const n=slotCount(),all=entries(),used=S.live.slots.slice(0,n).filter(slOk).length;
+  ob.innerHTML='📖 เปิดสมุดตุ๊กตา<small>บนชั้น '+used+'/'+n+' ช่อง · มีทั้งหมด '+all.length+' แบบ ('+all.reduce((a,x)=>a+x.cnt,0)+' ตัว) · แตะเพื่อเลือก</small>'}
+ const _rl=renderLive;renderLive=function(){const r=_rl.apply(this,arguments);try{sum()}catch(e){}return r};
+ sum();
+}
 
 // ---- starter doll cabinet + furniture locks ----
 (function(){
