@@ -8932,13 +8932,13 @@ window.SPART={"f1": {"front": "data:image/webp;base64,UklGRrqGAABXRUJQVlA4WAoAAA
  sum();
 }
 
-// ผู้ติดตามตั้งแต่ 1,000,000 ขึ้นไป: ถ้าไม่อยู่ที่ตู้คีบ ลดวินาทีละ 50 (ไม่ต่ำกว่า 1,000,000) ไม่มีแจ้งเตือน
+// ผู้ติดตามตั้งแต่ 1,000,000 ขึ้นไป: ถ้าไม่อยู่ที่ตู้คีบและไม่ได้เปิดไลฟ์ ลดวินาทีละ 5,000 (ไม่ต่ำกว่า 1,000,000) ไม่มีแจ้งเตือน
 {
  let last=Date.now(),sv=0;
  setInterval(()=>{try{
   const n=Date.now(),dt=Math.min(5,Math.max(0,(n-last)/1000));last=n;
-  if(typeof sc==='undefined'||sc==='claw'||!(S.fans>1e6))return;
-  S.fans=Math.max(1e6,S.fans-50*dt);
+  if(typeof sc==='undefined'||sc==='claw'||S.live&&S.live.on||!(S.fans>1e6))return;
+  S.fans=Math.max(1e6,S.fans-5000*dt);
   if(++sv>=10){sv=0;save()}
   if(sc==='lobby'&&typeof lobbyStats==='function')lobbyStats();
  }catch(e){}},1000);
@@ -8982,7 +8982,9 @@ window.SPART={"f1": {"front": "data:image/webp;base64,UklGRrqGAABXRUJQVlA4WAoAAA
   try{save();hud();renderLive()}catch(e){}
  }
  let _lt0=liveTick0;
- const _core=liveTick0;
+ const _c0=liveTick0;
+ // ผู้ติดตามที่เพิ่มต่อวินาทีถูกหน่วงตามจำนวนผู้ติดตาม (16 ล้าน ≈ 500/วิ) กันโตทบต้นเร็วเกิน
+ const _core=function(){const f=S.fans,r=_c0.apply(this,arguments),d=S.fans-f;if(d>0)S.fans=f+d/(1+f/1.6e6);return r};
  liveTick0=function(){
   const L=S.live;
   if(L&&L.on&&!cu){
