@@ -3480,7 +3480,7 @@ emoSchedule();
 // ---------- doll status effects ----------
 window.LASTST=null;
 const ST=[null,
- {e:'✨',n:'เปล่งประกาย',c:'#ffd84a',d:'รายได้ไลฟ์ ×1.4',w:25},
+ {e:'✨',n:'เปล่งประกาย',c:'#ffd84a',d:'รายได้ไลฟ์ ×0.5',w:25},
  {e:'🍀',n:'โชคดี',c:'#5fd68a',d:'ทุกวินาทีมีโอกาสได้เหรียญโบนัสก้อนใหญ่ตอนไลฟ์',w:25},
  {e:'💖',n:'ขวัญใจแฟน',c:'#ff7aa8',d:'ผู้ติดตามเพิ่มเร็วขึ้นตอนไลฟ์',w:20},
  {e:'💎',n:'ใจบุญ',c:'#7ad8ff',d:'บางครั้งมีแฟนคลับส่งเพชรให้ตอนไลฟ์',w:15},
@@ -3495,7 +3495,7 @@ function slType(x){return x==null?null:x>=0?x:(svGet(x)||{}).t}
 function slOk(x){return x!=null&&(x>=0?S.own[x]>0:!!svGet(x))}
 function svCount(t){return S.sv?S.sv.reduce((a,o)=>a+(o.t===t?1:0),0):0}
 function hasSv(t){return !!S.sv&&S.sv.some(o=>o.t===t)}
-function stM(s){return s===1?1.4:s===5?.7:1}
+function stM(s){return s===1?0.5:s===5?.7:1}
 function svTag(x){const o=x<0?svGet(x):null;return o?'<span class="stg" style="background:'+ST[o.s].c+'">'+ST[o.s].e+'</span>':''}
 function addSv(t,s){stFix();S.sv.push({id:S.svn++,t,s})}
 function svPick(){
@@ -3512,7 +3512,7 @@ function stLive(){
  const L=S.live;if(!L.on)return;
  placed().forEach(x=>{if(x>=0)return;const o=svGet(x),s=o.s,t=o.t;
   if(s===2&&Math.random()<.06){const b=Math.round(slotVal(x)*LK*8)+3;S.coins+=b;L.total+=b;chatAdd('','🍀 '+T[t].n+' โชคดี! ลูกค้าจ่ายพิเศษ +'+b+'🪙',1);PLV.push({x:200,y:100,vx:0,vy:-1,l:1.3,e:'🍀'});SFX.coin&&SFX.coin()}
-  if(s===3)S.fans+=(.05+(LV.view||0)*.012)*.3;
+  if(s===3)S.fans+=(.05+(LV.view||0)*.012)*.02;
   if(s===4&&Math.random()<.04){S.gems++;chatAdd('','💎 แฟนคลับส่งเพชรให้เพราะ '+T[t].n+' น่ารักมาก! +1💎',1);PLV.push({x:200,y:100,vx:0,vy:-1,l:1.3,e:'💎'});hud()}});
 }
 {const s=document.createElement('style');s.textContent='.stg{position:absolute;top:1px;right:1px;min-width:16px;height:16px;border-radius:9px;border:2px solid #fff;font-size:10px;line-height:12px;text-align:center;box-shadow:0 1px 0 rgba(91,58,82,.5)}.stg img.em{width:11px;height:11px;vertical-align:-1px}.cst{margin:6px auto 0;padding:5px 12px;border-radius:14px;font-size:13px;font-weight:800;color:#5b3a52;border:2px solid #fff;display:inline-block;animation:stpop .6s}@keyframes stpop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}.ic{position:relative}';document.head.appendChild(s)}
