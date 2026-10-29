@@ -1364,7 +1364,7 @@ const fmt=n=>Math.floor(n).toLocaleString('en-US');
 const LK=.2;
 const slotCount=()=>Math.min(6,3+Math.floor(S.lv/5));
 const RV=d=>Math.pow(1.3,d);
-function XPN(){return Math.round(S.lv*75*(1+S.lv/20))}
+function XPN(){return Math.round(S.lv*75*(1+S.lv/20)*0.8)}
 const STR=q=>q.st||Math.ceil((q.d+1)/2);
 const starsOf=t=>STR(T[t]);
 const slotVal=x=>{if(x==null||!slOk(x))return 0;const t=slType(x),o=x<0?svGet(x):null;return lmult(Math.max(1,lvOf(t)))*RV(T[t].d)*(o?stM(o.s):1)};
@@ -8343,13 +8343,13 @@ window.SPART={"f1": {"front": "data:image/webp;base64,UklGRrqGAABXRUJQVlA4WAoAAA
  $('pcare').addEventListener('click',e=>{const b=e.target.closest('[data-spv]');if(b)openV(b.dataset.spv)});
 })();
 
-// ไอเทมช่วย: ใช้แล้วทิ้ง เฉพาะร้านที่ซื้อ ราคา 5% ของเหรียญที่ถือ
+// ไอเทมช่วย: ใช้แล้วทิ้ง เฉพาะร้านที่ซื้อ ราคา 3% ของเหรียญที่ถือ
 {
  function norm(){try{
   if(!S.it)S.it=[0,0,0];
   if(!S.itMig){S.itMig=1;const old=(S.it[0]|0)+(S.it[1]|0)+(S.it[2]|0);if(old>0){S.coins+=old*2000;S.it=[0,0,0]}}
   if(S.itShop!==S.shop){S.it=[0,0,0];S.itShop=S.shop}
-  const p=Math.max(100,Math.round((S.coins||0)*0.05));
+  const p=Math.max(100,Math.round((S.coins||0)*0.03));
   IT.forEach(x=>{x.p=p;x.d=x.d.replace(/ · .*$/,'')+' · ใช้ครั้งเดียว เฉพาะร้านนี้'});
  }catch(e){}}
  IT.forEach(x=>{x.d=x.d.replace(/ · .*$/,'')});
@@ -8358,10 +8358,10 @@ window.SPART={"f1": {"front": "data:image/webp;base64,UklGRrqGAABXRUJQVlA4WAoAAA
  IT.forEach((x,i)=>{const b=$('s'+i);['pointerdown','click'].forEach(ev=>b.addEventListener(ev,norm,true))});
  norm();
 }
-// ค่าคีบ = 0.5% ของเหรียญที่ถือ (ขั้นต่ำเท่าค่าเล่นเดิมของร้าน) ทุกร้าน
+// ค่าคีบ = 0.3% ของเหรียญที่ถือ (ขั้นต่ำเท่าค่าเล่นเดิมของร้าน) ทุกร้าน
 {
  SH.forEach(s=>{if(s.cost0==null)s.cost0=s.cost});
- function fee(){try{const f=Math.round((S.coins||0)*0.005);SH.forEach(s=>{if(s.cost0==null)s.cost0=s.cost;s.cost=Math.max(s.cost0,f)});COST=SH[S.shop].cost;
+ function fee(){try{const f=Math.round((S.coins||0)*0.0005);SH.forEach(s=>{if(s.cost0==null)s.cost0=s.cost;s.cost=Math.max(s.cost0,f)});COST=SH[S.shop].cost;
   const g=$('go');if(g){const h='<span style="display:block;font-size:12px;line-height:1.1;font-weight:700;opacity:.95">('+COST.toLocaleString()+' 🪙)</span><span style="display:block;font-size:36px;line-height:1;font-weight:900">คีบ!</span>';if(g.dataset.h!==h){g.dataset.h=h;g.innerHTML=h}}}catch(e){}}
  const _g=go;go=function(){const r=_g.apply(this,arguments);fee();return r};
  const _h=hud;hud=function(){const r=_h.apply(this,arguments);fee();return r};
@@ -8711,9 +8711,9 @@ window.SPACE0=b0;window.SPACEN=B.length;
  const TH=[['#ffd6ec','#b79cff','#ff8fc8'],['#ffe3b0','#ff9a6b','#ffb347'],['#ffd27a','#c8503a','#ff7a5a'],['#4a3a98','#150b48','#a98cf0'],['#ffd0e8','#9ff0d0','#ff8fc8'],['#3a1a98','#0a0640','#7ac8ff']];
  const TAG=['ดินแดนสุดน่ารัก','เมืองหลวงสุดคึกคัก','งานวัดยามค่ำ','ผีจิ๋วสุดคิวท์','เมืองขนมหวาน','ดาวเคราะห์สุดหรรษา'];
  const st=document.createElement('style');
- st.textContent='#mworld.wcar{display:flex;gap:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;perspective:820px;perspective-origin:50% 40%;padding:16px 0 14px!important;margin:4px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}#mworld.wcar::-webkit-scrollbar{display:none}'+
+ st.textContent='#mworld.wcar{display:flex;gap:0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;overscroll-behavior-x:contain;touch-action:pan-x pan-y;perspective:820px;perspective-origin:50% 40%;padding:16px 0 14px!important;margin:4px 0 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}#mworld.wcar::-webkit-scrollbar{display:none}'+
  '#mworld .wsp{flex:none;width:calc(50% - 88px)}'+
- '#mworld .wc{flex:none;width:176px;margin:0 -6px;scroll-snap-align:center;position:relative;transform-style:preserve-3d;border-radius:20px;padding:7px 7px 9px;border:3px solid #6b4bb0;background:linear-gradient(#3a2f8c,#1c1450);box-shadow:0 10px 18px rgba(0,0,0,.45);transition:box-shadow .25s,border-color .25s,filter .25s;cursor:pointer;touch-action:pan-x;text-align:center;color:#fff;-webkit-tap-highlight-color:transparent}'+
+ '#mworld .wc{flex:none;width:176px;margin:0 -6px;scroll-snap-align:center;position:relative;transform-style:preserve-3d;will-change:transform;backface-visibility:hidden;border-radius:20px;padding:7px 7px 9px;border:3px solid #6b4bb0;background:linear-gradient(#3a2f8c,#1c1450);box-shadow:0 10px 18px rgba(0,0,0,.45);transition:box-shadow .25s,border-color .25s,filter .25s;cursor:pointer;touch-action:pan-x;text-align:center;color:#fff;-webkit-tap-highlight-color:transparent}'+
  '#mworld .wc.on{border-color:#ffd23f;box-shadow:0 0 0 2px #ffd23f66,0 0 22px #ffd23f88,0 14px 22px rgba(0,0,0,.55)}'+
  '#mworld .wc .pv{display:block;width:100%;aspect-ratio:320/220;border-radius:13px;background:#150c2e;transform:translateZ(22px);box-shadow:0 6px 12px rgba(0,0,0,.5),inset 0 0 0 2px rgba(255,255,255,.25)}'+
  '#mworld .wc .gl{position:absolute;left:7px;right:7px;top:7px;aspect-ratio:320/220;border-radius:13px;pointer-events:none;transform:translateZ(24px);background:linear-gradient(115deg,rgba(255,255,255,.38) 0%,rgba(255,255,255,0) 38%,rgba(255,255,255,0) 100%);mix-blend-mode:screen}'+
@@ -8738,11 +8738,19 @@ window.SPACE0=b0;window.SPACEN=B.length;
  addEventListener('resize',layout);
  function snap(w){// render a world's map onto the main canvas for one tick and copy it
   const sw=mapW,ss=mapSel;try{mapW=w;if((SH[mapSel].map|0)!==w)mapSel=inW(w)[0];drawMap();const cv=document.createElement('canvas');cv.width=320;cv.height=220;cv.getContext('2d').drawImage(mp,0,0,320,220);return cv}finally{mapW=sw;mapSel=ss}}
+
+ function fixBtn(){
+   {const bt=document.querySelector('#minfo [data-trav]');if(bt){mg2.className='';mg2.style.display='block';mg2.innerHTML=bt.innerHTML;bt.style.display='none'}
+    else{const s=SH[mapSel];if(s&&S.lv<s.req&&(SH[mapSel].map|0)===mapW&&!document.querySelector('#minfo [data-fair]')){mg2.className='lk';mg2.style.display='block';mg2.textContent='🔒 ปลดล็อกที่เลเวล '+s.req}else mg2.style.display='none'}}
+ }
  const _rm=renderMap;
  renderMap=function(){
   const r=_rm.apply(this,arguments);
   try{
    if(typeof trav!=='undefined'&&trav)return r;
+   const sig=[mapW,SH[S.shop].map|0,S.lv,WN.length].join('|');
+   if(sig===window.__wcSig&&box.querySelector('.wc')){fixBtn();return r}
+   window.__wcSig=sig;
    const old=box.scrollLeft;
    const here=SH[S.shop].map|0;
    let h='<div class="wsp"></div>';
@@ -8750,8 +8758,7 @@ window.SPACE0=b0;window.SPACEN=B.length;
     h+='<div class="wc'+(w===mapW?' on':'')+(lk?' lk':'')+'" data-w="'+w+'"><canvas class="pv" width="320" height="220"></canvas><i class="gl"></i>'+(w===here?'<span class="hr">📍 อยู่ที่นี่</span>':'')+(lk?'<span class="lkb">🔒 Lv.'+mr+'</span>':'')+'<span class="nm">'+ic+' '+nm+'</span><small>'+(TAG[w]||'')+' · '+ls.length+' ร้าน</small><span class="bd">'+(w===mapW?'✔ กำลังดู':'แตะเพื่อดู')+'</span></div>'});
    h+='<div class="wsp"></div>';box.innerHTML=h;
    box.querySelectorAll('canvas.pv').forEach(cv=>{const w=+cv.parentNode.dataset.w;try{cv.getContext('2d').drawImage(snap(w),0,0)}catch(e){}});
-   {const bt=document.querySelector('#minfo [data-trav]');if(bt){mg2.className='';mg2.style.display='block';mg2.innerHTML=bt.innerHTML;bt.style.display='none'}
-    else{const s=SH[mapSel];if(s&&S.lv<s.req&&(SH[mapSel].map|0)===mapW&&!document.querySelector('#minfo [data-fair]')){mg2.className='lk';mg2.style.display='block';mg2.textContent='🔒 ปลดล็อกที่เลเวล '+s.req}else mg2.style.display='none'}}
+   fixBtn();
    // redraw current map immediately so the main canvas isn't left on a snapshot
    try{drawMap()}catch(e){}
    box.scrollLeft=old;layout();
@@ -8759,6 +8766,46 @@ window.SPACE0=b0;window.SPACEN=B.length;
    layout();
   }catch(e){}
   return r};
+})();
+
+// ===== one-time "new update: space map" announcement =====
+(function(){
+ const KEY='newsSpace1';
+ const st=document.createElement('style');
+ st.textContent='#nsOv{position:fixed;inset:0;z-index:3400;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(6,3,30,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}#nsOv.on{display:flex;animation:nsFade .35s ease}'+
+ '@keyframes nsFade{from{opacity:0}to{opacity:1}}@keyframes nsPop{0%{transform:scale(.7) translateY(30px);opacity:0}70%{transform:scale(1.04)}100%{transform:none;opacity:1}}'+
+ '#nsCard{position:relative;width:100%;max-width:340px;border-radius:28px;padding:20px 16px 16px;color:#fff;text-align:center;overflow:hidden;border:3px solid #ffffffaa;background:radial-gradient(circle at 20% 10%,#5a3ac8 0,transparent 45%),radial-gradient(circle at 85% 90%,#c83a9a 0,transparent 40%),linear-gradient(#2a1478,#0a0640);box-shadow:0 0 0 4px #7a5ae855,0 0 40px #7a5ae899,0 20px 40px rgba(0,0,0,.6);animation:nsPop .55s cubic-bezier(.2,1.1,.3,1)}'+
+ '#nsCard .stars{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(2px 2px at 12% 22%,#fff,transparent),radial-gradient(1.5px 1.5px at 30% 60%,#fff,transparent),radial-gradient(2px 2px at 70% 18%,#ffe27a,transparent),radial-gradient(1.5px 1.5px at 88% 52%,#fff,transparent),radial-gradient(2px 2px at 55% 80%,#bfe8ff,transparent),radial-gradient(1.5px 1.5px at 8% 88%,#fff,transparent);animation:nsTw 2.4s infinite alternate}@keyframes nsTw{from{opacity:.45}to{opacity:1}}'+
+ '#nsCard .nw{display:inline-block;padding:3px 12px;border-radius:12px;background:linear-gradient(#ff9ac8,#e0457b);font-size:12px;font-weight:800;letter-spacing:.5px;box-shadow:0 3px 0 #8a1a4a;position:relative}'+
+ '#nsCard h2{margin:8px 0 2px;font-size:24px;line-height:1.2;font-weight:800;text-shadow:0 3px 0 #1c0a5a;position:relative}#nsCard p{margin:0 0 10px;font-size:13px;opacity:.92;position:relative}'+
+ '#nsOrb{position:relative;height:118px;margin:2px 0 6px}#nsOrb .pl{position:absolute;left:50%;top:50%;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0,#ffd0f0 18%,#b58af0 55%,#4a2a98 100%);box-shadow:0 0 28px #b58af099}'+
+ '#nsOrb .rg{position:absolute;left:50%;top:50%;width:150px;height:38px;margin:-19px 0 0 -75px;border-radius:50%;border:7px solid #ffd0f0cc;transform:rotate(-18deg);box-shadow:0 0 12px #ffd0f088}'+
+ '#nsOrb .rk{position:absolute;left:50%;top:50%;font-size:30px;margin:-15px 0 0 -15px;animation:nsOrbit 4.2s linear infinite}@keyframes nsOrbit{from{transform:rotate(0) translateX(70px) rotate(0) rotate(40deg)}to{transform:rotate(360deg) translateX(70px) rotate(-360deg) rotate(40deg)}}'+
+ '#nsDl{display:flex;justify-content:center;gap:6px;margin:4px 0 10px;perspective:500px;position:relative}#nsDl img{width:62px;height:68px;object-fit:contain;border-radius:14px;background:linear-gradient(#4a2aa8aa,#1a0c5aaa);border:2px solid #ffffff55;padding:2px;box-shadow:0 6px 10px rgba(0,0,0,.4);transform:rotateY(-14deg);animation:nsBob 2.2s ease-in-out infinite}#nsDl img:nth-child(2){animation-delay:.3s;transform:rotateY(0)}#nsDl img:nth-child(3){animation-delay:.6s;transform:rotateY(14deg)}#nsDl img:nth-child(4){animation-delay:.9s;transform:rotateY(22deg)}@keyframes nsBob{50%{margin-top:-7px}}'+
+ '#nsCard ul{list-style:none;margin:0 0 12px;padding:0;text-align:left;font-size:13.5px;font-weight:700;position:relative}#nsCard li{padding:6px 10px;margin:4px 0;border-radius:12px;background:#ffffff18;border:1px solid #ffffff22}'+
+ '#nsGo{width:100%;padding:14px 8px;font-size:19px;font-weight:800;border-radius:20px;border:3px solid #fff;color:#fff;background:linear-gradient(#ffb0d8,#e0457b);box-shadow:0 5px 0 #8a1a4a;text-shadow:0 2px 0 #8a1a4a;position:relative;touch-action:manipulation}#nsGo:active{transform:translateY(3px);box-shadow:0 2px 0 #8a1a4a}'+
+ '#nsLater{margin-top:8px;background:none;border:0;color:#d8ccff;font-size:13px;font-weight:700;padding:6px 10px;position:relative}';
+ document.head.appendChild(st);
+ const ov=document.createElement('div');ov.id='nsOv';document.body.appendChild(ov);
+ function close(){ov.classList.remove('on')}
+ function build(){
+  const s0=window.SPACE0|0,pick=[39,35,29,26].map(i=>IMG[s0+i]).filter(Boolean);
+  ov.innerHTML='<div id="nsCard"><i class="stars"></i><span class="nw">✨ อัปเดตใหม่ ✨</span><h2>🪐 แผนที่อวกาศ<br>มาแล้ว!</h2><p>ออกเดินทางด้วยยานอวกาศสู่ระบบสุริยะสุดน่ารัก</p>'+
+   '<div id="nsOrb"><i class="rg"></i><i class="pl"></i><span class="rk">🚀</span></div>'+
+   '<div id="nsDl">'+pick.map(u=>'<img src="'+u+'">').join('')+'</div>'+
+   '<ul><li>🌙 5 ร้านใหม่ ตั้งแต่ดวงจันทร์ถึงใจกลางกาแล็กซี</li><li>🧸 ตุ๊กตาอวกาศ 40 แบบ ระดับ 5–10 ดาว</li><li>🔓 ปลดล็อกที่เลเวล 64 ขึ้นไป</li></ul>'+
+   '<button id="nsGo">🚀 ไปดูแผนที่เลย</button><br><button id="nsLater">ไว้ก่อน</button></div>';
+  ov.querySelector('#nsGo').onclick=()=>{close();try{SFX.ok()}catch(_){}try{go('map');renderMap();setTimeout(()=>{const b=document.querySelector('#mworld [data-w="5"]');if(b&&mapW!==5)b.click()},120)}catch(e){}};
+  ov.querySelector('#nsLater').onclick=close;
+  ov.addEventListener('click',e=>{if(e.target===ov)close()},{once:true})}
+ let tries=0;
+ const iv=setInterval(()=>{try{
+  if(!S||S[KEY]){clearInterval(iv);return}
+  const lg=$('login');if(lg&&getComputedStyle(lg).display!=='none')return;
+  if(!S.gender)return;
+  if(++tries<3)return;// wait ~4s after entering
+  if(document.querySelector('#clov.on,#bxov.on,#spFly[style*="block"]'))return;
+  S[KEY]=1;save();build();ov.classList.add('on');try{SFX.ok()}catch(_){}clearInterval(iv)}catch(e){}},1500);
 })();
 
 // ---- starter doll cabinet + furniture locks ----
