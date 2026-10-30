@@ -330,7 +330,7 @@ input,select{border-radius:14px}
 <h2>💕 ดูแลน้อง</h2><div id="pcare" class="panel"></div>
 <h2>🏪 ร้านสัตว์เลี้ยง</h2><div id="pshop" class="panel igrid"></div></div>
 
-<div id="sc-rank" style="display:none"><canvas id="rkc" width="640" height="300"></canvas><div id="rktabs"><button data-rk="0">🏆 คีบเยอะสุด</button><button data-rk="1">💰 รวยสุด</button><button data-rk="2">👥 เพื่อน</button></div><div id="rkst"></div><div id="rkbody"></div></div>
+<div id="sc-rank" style="display:none"><canvas id="rkc" width="640" height="300"></canvas><div id="rktabs"><button data-rk="0">🏆 คีบเยอะสุด</button><button data-rk="1">⭐ เลเวลสูงสุด</button><button data-rk="2">👥 เพื่อน</button></div><div id="rkst"></div><div id="rkbody"></div></div>
 <div id="sc-clu" style="display:none"><div id="cutxt">…</div><canvas id="cuc" width="640" height="520"></canvas><div id="cusel"></div><div id="cuinfo"></div>
 <div class="row"><button class="pk big" id="cugo">🔧 เริ่มประกอบ</button></div><div class="row" style="margin-top:6px"><button class="pk" id="cuTap" style="font-size:18px;padding:14px;background:radial-gradient(circle at 35% 28%,#ffb0c4,#ff4d78 40%,#d4143f 80%);box-shadow:0 6px 0 #7a1030;touch-action:none">👆 แตะ / กดค้าง</button></div><div class="row" style="margin-top:6px"><button class="pk" id="cubtn">⬅️ กลับ</button></div></div>
 <div id="sc-mys" style="display:none;position:relative"><div id="mymsg"></div><canvas id="myc" width="640" height="720"></canvas><div id="mycnt"></div><div id="myst"></div>
@@ -5132,9 +5132,9 @@ window.GVC={"0": "data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE
   if(c){const k=c.__u||(c.__u=c.toDataURL());return '<span class="av" style="'+bg+';overflow:hidden;padding:0"><img src="'+k+'" style="width:100%;height:100%;object-fit:cover;display:block"></span>'}
   return '<span class="av" style="'+bg+'">'+esc((n||'?').charAt(0).toUpperCase())+'</span>'};
  function board(){let r=RK.rows.filter(x=>!x.hid);const k=wkKey();
-  if(RK.tab===0)r=r.filter(x=>x.wk===k&&(x.wc|0)>0).sort((a,b)=>b.wc-a.wc);else r=r.sort((a,b)=>worth(b)-worth(a));
+  if(RK.tab===0)r=r.filter(x=>x.wk===k&&(x.wc|0)>0).sort((a,b)=>b.wc-a.wc);else r=r.sort((a,b)=>((b.lv|0)-(a.lv|0))||(worth(b)-worth(a)));
   if(RK.only){const f=new Set(friends().concat([RK.uid]));r=r.filter(x=>f.has(x.id))}return r}
- const val=x=>RK.tab===0?'🧸 '+(x.wc|0)+' ตัว':'🪙 '+worth(x).toLocaleString();
+ const val=x=>RK.tab===0?'🧸 '+(x.wc|0)+' ตัว':'⭐ เลเวล '+(x.lv|0);
  function row(x,i){return '<div class="rkr'+(x.id===RK.uid?' me':'')+'"><span class="no">'+(i<3?['1','2','3'][i]:i+1)+'</span>'+av(x.n,x)+'<span class="nm">'+dot(x)+esc(x.n)+' <small style="opacity:.6">Lv'+(x.lv|0)+'</small></span><span class="vl">'+val(x)+'</span></div>'}
  function status(){const l=wkLeft(),d=Math.floor(l/864e5),h=Math.floor(l%864e5/36e5);
   let s='';if(!ACC)s='ต้องเข้าสู่ระบบด้วยบัญชีก่อนถึงจะติดอันดับได้ (ออกจากโหมดผู้เยี่ยมชม)';else if(!RK.db||!RK.uid)s='ออฟไลน์: เปิดเกมผ่านลิงก์บน claude.ai เพื่อใช้ระบบออนไลน์';else if(RK.ok===false)s='👀 โหมดดูอย่างเดียว: ตอนนี้บัญชีนี้ส่งคะแนนไม่ได้ (ต้องได้สิทธิ์ผู้ร่วมแก้ไขจากเจ้าของลิงก์)';else s='🟢 ออนไลน์ · ';
